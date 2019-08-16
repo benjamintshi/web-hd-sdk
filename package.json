@@ -38,5 +38,11 @@
   },
   "repository": "https://github.com/benjamintshi/web-hd-sdk.git",
   "author": "Benmain",
-  "license": "ISC"
+  "license": "ISC",
+  "keywords": [
+    "Ledger",
+    "Trezor",
+    "BTC",
+    "ETH"
+  ]
 }
