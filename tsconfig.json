@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "lib": [
+      "es2017"
+    ],
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "strict": true,
+    "types": [
+      "node",
+      "mocha",
+      "lodash",
+      "bitcore-lib"
+    ],
+    "typeRoots": [],
+    "outDir": "./dist",
+    "declaration": true,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
