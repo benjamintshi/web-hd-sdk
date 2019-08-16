@@ -16,14 +16,13 @@ class LedgerControler {
         this.logic = new LedgerLogic(coinType);
     }
     public async signTransaction(data: any): Promise<any> {
-        debugger
         const transport: any = await this.transport.getTransport();
         const entity: any = await this.logic.getLedgerEntity(data);
         switch (this.coin_type) {
             case CoinType.ETH:
                 return await this.transaction.signEth(data.input.path, entity, transport);
             case CoinType.BTC:
-                debugger
+
                 return await this.transaction.signBtc(entity, transport);
         }
     }

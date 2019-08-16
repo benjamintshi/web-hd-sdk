@@ -23,7 +23,6 @@ class LedgerTransaction {
         return res;
     }
     public async signBtc(entity: BtcEntity, transport: any): Promise<Result> {
-        debugger
         let signed: any;
         if (entity.paths.length === 1) {
             signed = await transport.createPaymentTransactionNew(
@@ -39,7 +38,6 @@ class LedgerTransaction {
         } else {
             signed = await transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
         }
-        debugger
         let res: Result = {
             success: true,
             message: "",
@@ -49,7 +47,6 @@ class LedgerTransaction {
         return res;
     }
     private async getSignature(signMsg: any): Promise<Array<Signature>> {
-        debugger
         const tx = new Bitcore.Transaction(signMsg);
         const signatures: Array<Signature> = new Array<Signature>();
         tx.inputs.forEach((vin) => {
@@ -62,7 +59,6 @@ class LedgerTransaction {
         return signatures;
     }
     private getVersion(signMsg: string): (number) {
-        debugger
         const tx = new Bitcore.Transaction(signMsg);
         return tx.version;
     }

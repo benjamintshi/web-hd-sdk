@@ -16,7 +16,6 @@ class LedgerLogic {
         this.transport = new LedgerTransport(coinType);
     }
     public async getLedgerEntity(data: any): Promise<any> {
-        debugger
         switch (this.coin_type) {
             case CoinType.ETH:
                 return await this.getEthLedgerEntity(data);
@@ -25,7 +24,6 @@ class LedgerLogic {
         }
     }
     private async getBtcLedgerEntity(data: BtcData): Promise<BtcEntity> {
-        debugger
         let entity: BtcEntity = {
             inputs: await this.getLedgerInputs(data),
             outputScript: await this.getLedgerOutputScript(data.outputs),
@@ -47,7 +45,6 @@ class LedgerLogic {
         return entity;
     }
     private async getLedgerInputs(data: BtcData): Promise<any> {
-        debugger
         let inputs: any = await this.getTxInputs(data.utxos);
         if (data.input.paths.length > 1) {
             inputs.forEach(element => {
@@ -57,7 +54,6 @@ class LedgerLogic {
         return inputs;
     }
     private async getTxInputs(listUtxo: Array<Utxo>): Promise<any> {
-        debugger
         const transport: any = await this.transport.getTransport();
         let ids: Array<string> = new Array<string>();
         let splitTxs: Array<any> = new Array<any>();
@@ -78,7 +74,6 @@ class LedgerLogic {
         return _.zip(splitTxs, indexs);
     }
     private async getLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {
-        debugger
         let tmp: Array<any> = new Array<any>();
         listOutput.forEach(element => {
             tmp.push({
