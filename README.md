@@ -51,10 +51,10 @@ const data = {
     "address": "muJhWgBWKDaigLaoi3DLWQJZvDm2xZ7Zb7",
     "paths": [
       {
-        "addressPublicKey": "0385cdf1b2eec37619645d6eb72213141bc95c8d5203f949600c31e71299fd81ca",
-        "addressType": "SPENDADDRESS",
+        "addressPublicKey": "",
+        "addressType": "",
         "path": "m/44'/1'/72'/0/2",
-        "xpub": "tpubDDYx2ZBL1NneRv49BbMhL95g2tUvWmLtaFJnJmre5QUhirBYDtzLUsbTuYSWU1gcYb25MKVT5p9PKEQWvHNNnB9Q1zkLpMhtHRWAQ9WU4x5"
+        "xpub": ""
       }
     ],
     "requires": 1,
