@@ -1,18 +1,23 @@
 import { rlp } from "ethereumjs-util";
-import { Result, Signature } from '../common/utils';
+import { Result, Signature } from '../model/utils';
 import { BtcEntity } from '../model/btc';
 import { EthEntity } from '../model/eth';
+import { LedgerTransport } from "./transport";
 const Bitcore = require('bitcore-lib');
 const Tx = require('ethereumjs-tx');
 class LedgerTransaction {
-    constructor() {
+    private transport: any;
+    private coin_type: string;
+    constructor(coinType: string) {
+        this.coin_type = coinType;
     }
-    public async signEth(path: string, entity: EthEntity, transport: any): Promise<Result> {
+    public async signEth(path: string, entity: EthEntity): Promise<Result> {
         let res: Result = {};
         let signed: any;
         const tx = new Tx(entity);
         const rawTxHex = rlp.encode(tx.raw).toString('hex');
-        signed = await transport.signTransaction(path, rawTxHex);
+        this.transport = await new LedgerTransport(this.coin_type).getTransport();
+        signed = await this.transport.signTransaction(path, rawTxHex);
         res = {
             success: true,
             message: "",
@@ -22,10 +27,12 @@ class LedgerTransaction {
         };
         return res;
     }
-    public async signBtc(entity: BtcEntity, transport: any): Promise<Result> {
+    public async signBtc(entity: BtcEntity): Promise<Result> {
+        debugger
         let signed: any;
+        this.transport = await new LedgerTransport(this.coin_type).getTransport();
         if (entity.paths.length === 1) {
-            signed = await transport.createPaymentTransactionNew(
+            signed = await this.transport.createPaymentTransactionNew(
                 entity.inputs,
                 entity.paths,
                 undefined,
@@ -36,8 +43,9 @@ class LedgerTransaction {
                 undefined ? Math.floor(Date.now() / 1000) - 15 * 60 : undefined
             )
         } else {
-            signed = await transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
+            signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
         }
+        debugger
         let res: Result = {
             success: true,
             message: "",
@@ -47,6 +55,7 @@ class LedgerTransaction {
         return res;
     }
     private async getSignature(signMsg: any): Promise<Array<Signature>> {
+        debugger
         const tx = new Bitcore.Transaction(signMsg);
         const signatures: Array<Signature> = new Array<Signature>();
         tx.inputs.forEach((vin) => {
@@ -59,6 +68,7 @@ class LedgerTransaction {
         return signatures;
     }
     private getVersion(signMsg: string): (number) {
+        debugger
         const tx = new Bitcore.Transaction(signMsg);
         return tx.version;
     }
