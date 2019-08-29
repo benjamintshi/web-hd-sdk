@@ -16,9 +16,9 @@ class Xpub {
     public async getXpub(segwit: boolean, transport: any): Promise<any> {
         let hd: WalletHd = await this.getWalletPublicKey(segwit, transport);
         return {
-            chainCode:hd.chainCode,
-            publicKey:hd.publicKey,
-            xpubStr:this.initialize(hd)
+            chainCode: hd.chainCode,
+            publicKey: hd.publicKey,
+            xpubStr: this.initialize(hd)
         };
     }
     private async getWalletPublicKey(segwit: boolean, transport: any): Promise<WalletHd> {

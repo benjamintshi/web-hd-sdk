@@ -14,8 +14,17 @@ interface AddressParam{
      * 是否硬件
      */
     isHd:boolean;
+    /**
+     * 是否隔离见证
+     */
     segwit:boolean;
+    /**
+     * 开始路径
+     */
     start:number;
+    /**
+     * 结束路径
+     */
     end:number;
     chainCode?:string;
     publicKey?:string;
