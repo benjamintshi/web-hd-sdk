@@ -4,6 +4,7 @@ import {AddressParam} from "../model/hd";
 import {HDPublicKey} from "bitcore-lib";
 
 const HDKey = require("hdkey");
+const ethereumWallet = require('ethereumjs-wallet');
 
 class LedgerAddress {
     private xPub: Xpub;
@@ -33,10 +34,10 @@ class LedgerAddress {
             let deriveObj: any = dhPub.deriveChild(0).deriveChild(i);
             addressList.push({
                 path: this.derivation_path + '/' + i,
-                address: deriveObj.publicKey.toString('hex'),
+                address: '0x' + ethereumWallet.fromPublicKey(deriveObj.publicKey, true).getAddress().toString('hex'),
                 coinType: this.coin_type,
                 pubKeyObj: {
-                    hex: deriveObj.publicKey.toString('hex'),
+                    hex: '0x' + deriveObj.publicKey.toString('hex'),
                     baseEncoding: ''
                 },
             });
@@ -67,7 +68,7 @@ class LedgerAddress {
                 address: deriveObj.publicKey.toAddress().toString('hex'),
                 coinType: this.coin_type,
                 pubKeyObj: {
-                    hex: deriveObj.publicKey.toAddress().toString('hex'),
+                    hex: deriveObj.publicKey.toString('hex'),
                     baseEncoding: ''
                 },
             });
