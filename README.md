@@ -109,3 +109,35 @@ res = {
 };
 ```
 
+### 三、BTC、ETH-地址导出
+```
+import {HdCore} from 'web-hd-sdk';
+let derivationPath = this.entity.coinName === 'eth' ? "44'/60'/0'" : "44'/1'/0'"
+const hd = new HdCore(this.entity.deviceName, this.entity.coinName, derivationPath);
+const res = await hd.getWalletAddress({
+    isHd: true,
+    segwit: false,
+    start: 0,
+    end: 5
+});
+console.log(res)
+```
+####返回结果
+
+```
+res = {
+    addressList: [{
+        address: "0xcd63f1f9d5ecf522208c978a76679a573d0466e0"
+        coinType: "eth"
+        path: "44'/60'/0'/0",
+        pubKeyObj:{
+            baseEncoding: ""
+            hex: "0x0356c0dfa323a12ff0e188012f439865d0a5d3291793b51e55496e7275a5432c27"
+        }
+    }]
+    chainCode: ""
+    publicKey: ""
+    xpubStr: ""
+};
+```
+
