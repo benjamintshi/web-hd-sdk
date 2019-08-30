@@ -29,16 +29,16 @@ export class HdCore {
         return signed;
     }
     public async getWalletAddress(param:AddressParam): Promise<Result> {
-        let signed: Result = {};
+        let resp: Result = {};
         switch (this.device_name) {
             case HDType.LEDGER:
-                signed = await this.ledger.getCoinAddressList(param);
+                resp = await this.ledger.getCoinAddressList(param);
                 break;
             case HDType.TREZOR:
 
                 break;
         }
-        return signed;
+        return resp;
     }
 }
 

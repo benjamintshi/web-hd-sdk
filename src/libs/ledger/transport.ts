@@ -13,14 +13,12 @@ class LedgerTransport {
         this.coin_type = coinType;
     }
     private async isWebUsbSupported(): Promise<boolean> {
-        debugger
         const isSupport = await TransportWebUSB.isSupported();
         return (
             isSupport && platform.os.family !== 'Windows' && platform.name !== 'Opera'
         );
     }
     public async getTransport(): Promise<any> {
-        debugger
         const support: boolean = await this.isWebUsbSupported();
         let transport: any;
         if (support) {

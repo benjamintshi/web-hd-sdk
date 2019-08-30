@@ -9,31 +9,40 @@ interface WalletPublicKey {
     chainCode: string;
 }
 
-interface AddressParam{
+interface AddressParam {
     /**
      * 是否硬件
      */
-    isHd:boolean;
+    isHd: boolean;
     /**
      * 是否隔离见证
      */
-    segwit:boolean;
+    segwit: boolean;
     /**
      * 开始路径
      */
-    start:number;
+    start: number;
     /**
      * 结束路径
      */
-    end:number;
-    chainCode?:string;
-    publicKey?:string;
-    xPubStr?:string;
+    end: number;
+    chainCode?: string;
+    publicKey?: string;
+    xPubStr?: string;
 }
 
+interface XPubEntity {
+    depth: number;
+    fingerPrint: number;
+    childNum: number;
+    chainCode: string;
+    publicKey: string;
+    network: number;
+}
 
 export {
     WalletHd,
     WalletPublicKey,
-    AddressParam
+    AddressParam,
+    XPubEntity
 }
