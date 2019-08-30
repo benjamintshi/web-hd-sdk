@@ -1,5 +1,5 @@
 ### web-hd-sdk
-> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth （开发中.）。
+> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth （持续更新.）。
 
 #### Installing
 For the latest stable version:
@@ -7,12 +7,11 @@ For the latest stable version:
 npm install web-hd-sdk
 
 ```
-#### 使用是说明
+#### 使用说明
 ### 一、ETH-签名
 ```
 import {HdCore} from 'web-hd-sdk';
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
-const data = {
+const source_data = {
   "chainId": "3",
   "gasLimit": 30000,
   "gasPrice": 1000000000,
@@ -24,6 +23,7 @@ const data = {
   "toAddress": "0x87da9eceb42a8a0c23e6058447ff301da5f5f8a9",
   "txnCoinNum": 1.2
 };
+const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -45,8 +45,7 @@ res = {
 ### 二、BTC-签名
 ```
 import {HdCore} from 'web-hd-sdk';
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
-const data = {
+const source_data = {
   "input": {
     "address": "muJhWgBWKDaigLaoi3DLWQJZvDm2xZ7Zb7",
     "paths": [
@@ -91,6 +90,7 @@ const data = {
     }
   ]
 };
+const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
