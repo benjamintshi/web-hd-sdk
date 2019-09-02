@@ -1,4 +1,3 @@
-
 import { CoinType } from '../model/utils';
 import { LedgerTransaction } from './transaction';
 import { LedgerLogic } from './logic';
@@ -15,7 +14,6 @@ class LedgerControler {
         this.derivation_path = derivationPath;
     }
     public async signTransaction(data: any): Promise<any> {
-        debugger
         this.logic = new LedgerLogic(this.coin_type);
         const entity: any = await this.logic.getLedgerEntity(data);
         this.transaction = new LedgerTransaction(this.coin_type);
@@ -24,13 +22,13 @@ class LedgerControler {
                 return await this.transaction.signEth(data.input.path, entity);
             case CoinType.BTC:
                 debugger
-                return await this.transaction.signBtc(entity);
+                return await this.transaction.signBtcSeries(entity);
             case CoinType.BCH:
                 debugger
-                return await this.transaction.signBtc(entity);
+                return await this.transaction.signBtcSeries(entity);
             case CoinType.LTC:
                 debugger
-                return await this.transaction.signBtc(entity);
+                return await this.transaction.signBtcSeries(entity);
         }
     }
     public async getCoinAddressList(param: AddressParam): Promise<any> {
@@ -39,7 +37,7 @@ class LedgerControler {
             case CoinType.ETH:
                 return await this.address.getEthAddress(param);
             case CoinType.BTC:
-                return await this.address.getBtcAddress(param);
+                return await this.address.getBtcSeriesAddress(param);
         }
     }
 }

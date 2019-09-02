@@ -1,4 +1,4 @@
-interface BtcEntity {
+interface BtcSeriesEntity {
     inputs: Array<any>;
     paths: Array<string>;
     outputScript: string;
@@ -18,12 +18,12 @@ interface BtcEntity {
      */
     sigHashType?:string;
 }
-interface BtcData {
-    input: BtcInput;
+interface BtcSeriesData {
+    input: Input;
     outputs: Array<OutPut>;
     utxos: Array<Utxo>;
 }
-interface BtcInput {
+interface Input {
     address: string;
     paths: Array<Path>;
     requires: number;
@@ -60,10 +60,10 @@ interface signTransactionRes{
 
 }
 export {
-    BtcEntity,
+    BtcSeriesEntity,
     Utxos,
     Utxo,
     OutPuts,
     OutPut,
-    BtcData
+    BtcSeriesData
 }

@@ -1,6 +1,6 @@
 import { rlp } from "ethereumjs-util";
 import { Result, Signature } from '../model/utils';
-import { BtcEntity } from '../model/btc';
+import { BtcSeriesEntity } from '../model/btc';
 import { EthEntity } from '../model/eth';
 import { LedgerTransport } from "./transport";
 const Bitcore = require('bitcore-lib');
@@ -32,12 +32,11 @@ class LedgerTransaction {
     }
 
     /**
-     * support btc,bch,ltc sign.
+     * support btc series coin sign,include btc,bch,ltc.
      * @param {BtcEntity} entity
      * @returns {Promise<Result>}
      */
-    public async signBtc(entity: BtcEntity): Promise<Result> {
-        debugger
+    public async signBtcSeries(entity: BtcSeriesEntity): Promise<Result> {
         let signed: any;
         this.transport = await new LedgerTransport(this.coin_type).getTransport();
         if (entity.paths.length === 1) {
@@ -55,7 +54,6 @@ class LedgerTransaction {
         } else {
             signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
         }
-        debugger
         let res: Result = {
             success: true,
             message: "",
@@ -66,7 +64,6 @@ class LedgerTransaction {
     }
 
     private async getSignature(signMsg: any): Promise<Array<Signature>> {
-        debugger
         const tx = new Bitcore.Transaction(signMsg);
         const signatures: Array<Signature> = new Array<Signature>();
         tx.inputs.forEach((vin) => {
@@ -80,7 +77,6 @@ class LedgerTransaction {
     }
 
     private getVersion(signMsg: string): (number) {
-        debugger
         const tx = new Bitcore.Transaction(signMsg);
         return tx.version;
     }

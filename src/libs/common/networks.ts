@@ -50,7 +50,7 @@ const networks  = {
                 public: 0x019da462
             },
             messagePrefix: "Litecoin Signed Message:",
-            pubKeyHash: 48,
+            pubKeyHash: 48,//111-0x6f testnet, 48-0x30 mainnet
             scriptHash: 50,
             wif: 0xb0
         },

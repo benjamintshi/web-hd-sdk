@@ -2,7 +2,7 @@
 import { bchaddrjs } from 'bchaddrjs';
 import { CoinType, HDType } from '../model/utils';
 const bitcoinjs = require('bitcoinjs-lib');
-class AddressTools {
+class Tools {
     public static getCoinAddress(address: string, coinType: string): string {
         switch (coinType) {
             case CoinType.BTC:
@@ -39,5 +39,5 @@ class AddressTools {
     }
 }
 export {
-    AddressTools
+    Tools
 }

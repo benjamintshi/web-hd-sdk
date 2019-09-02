@@ -21,6 +21,7 @@
     "bip32": "^2.0.4",
     "bip32-path": "^0.4.2",
     "bitcoinjs-lib": "^5.1.5",
+    "bitcore-lib-cash": "^8.6.0",
     "bs58": "^4.0.1",
     "build-output-script": "^1.0.3",
     "ethereumjs-tx": "^1.3.3",
