@@ -42,6 +42,9 @@ interface Utxo {
     coinNum: number;
 }
 
+interface signTransactionRes{
+
+}
 export {
     BtcEntity,
     Utxos,

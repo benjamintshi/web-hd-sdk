@@ -17,15 +17,24 @@ interface Result extends EthResult, BtcResult {
 }
 enum CoinType {
     BTC = 'btc',
-    ETH = 'eth'
+    ETH = 'eth',
+    LTC = 'ltc',
+    BCH = 'bch'
 }
 enum HDType {
     LEDGER = 'ledger',
     TREZOR = 'trezor'
 }
+
+interface  SignatureResult extends EthResult, BtcResult {
+    signeds?:Array<Signature>,
+    version?:number,
+    success?:boolean
+}
 export {
     Result,
     CoinType,
     HDType,
-    Signature
+    Signature,
+    SignatureResult
 }

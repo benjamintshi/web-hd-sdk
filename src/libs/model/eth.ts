@@ -6,6 +6,7 @@ interface EthEntity {
     value: string;
     data: string;
     chainId: string;
+    path?:string
 }
 interface EthData {
     chainId: number;
@@ -16,12 +17,15 @@ interface EthData {
     toAddress: string;
     txnCoinNum: number;
     data:string;
+
 }
 interface EthInput {
     address: string;
     path: string;
 }
+interface SignatureResult{
 
+}
 export {
     EthEntity,
     EthData
