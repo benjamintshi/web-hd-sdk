@@ -1,17 +1,22 @@
 
 import {CoinType} from "../model/utils";
 import {SEND_ENUM,trezorBtcEntityResult,PAY_ENUM,dealWithInputsResult} from "./common/utils";
-import bitcore from 'bitcore-lib';
+//import bitcore from 'bitcore-lib';
 import {BtcUtil} from "./common/BtcUtil";
-import bitcoinjslib from 'bitcoinjs-lib';
-import util from 'util';
+//import bitcoinjslib from 'bitcoinjs-lib';
+//import util from 'util';
 import { toHex, numberToHex } from 'web3-utils';
 import { convert } from 'ethereumjs-units';
 import {EthData, EthEntity} from "../model/eth";
-import ethUtil from "ethereumjs-util";
+//import ethUtil from "ethereumjs-util";
 import trezor from "trezor-connect";
 import {Utxos} from "../model/btc";
 const Tx = require('ethereumjs-tx');
+const bitcoinjslib = require("bitcoinjs-lib");
+const bitcore = require("bitcore-lib");
+const ethUtil = require("ethereumjs-util");
+const util = require("util");
+
 class TrezorLogic {
 
 

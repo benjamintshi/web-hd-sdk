@@ -7,7 +7,7 @@
     ],
     "moduleResolution": "node",
     "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
     "esModuleInterop": true,
     "strict": true,
     "types": [

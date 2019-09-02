@@ -1,12 +1,12 @@
 import buildOutputScript from 'build-output-script';
-import { Unit } from 'bitcore-lib';
-import { BtcEntity, BtcData, Utxo, OutPut } from '../model/btc';
-import _ from 'lodash';
-import { LedgerTransport } from './transport'
-import { EthEntity, EthData } from '../model/eth';
-import { toHex, numberToHex } from 'web3-utils';
-import { convert } from 'ethereumjs-units';
-import { CoinType } from '../model/utils';
+import {Unit} from 'bitcore-lib';
+import {BtcEntity, BtcData, Utxo, OutPut} from '../model/btc';
+import {zip} from 'lodash';
+import {LedgerTransport} from './transport'
+import {EthEntity, EthData} from '../model/eth';
+import {toHex, numberToHex} from 'web3-utils';
+import {convert} from 'ethereumjs-units';
+import {CoinType} from '../model/utils';
 
 const axios = require('axios');
 
@@ -83,7 +83,7 @@ class LedgerLogic {
             splitTxs.push(splitTx);
             indexs.push(listUtxo[i].index);
         }
-        return _.zip(splitTxs, indexs);
+        return zip(splitTxs, indexs);
     }
 
     private async getLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {

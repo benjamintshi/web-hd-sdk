@@ -1,9 +1,10 @@
 import trezor from "trezor-connect";
-import BitCoreLib from "bitcore-lib";
+// import BitCoreLib from "bitcore-lib";
 import {Signature, SignatureResult, Result} from "../model/utils";
 import {TrezorLogic} from "./logic";
 import {EthEntity} from "../model/eth";
 import {trezorBtcEntityResult} from "./common/utils";
+const BitCoreLib = require("bitcore-lib")
 class TrezorTransaction {
     private logic : TrezorLogic
     constructor(coinType:string){
