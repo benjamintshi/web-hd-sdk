@@ -1,6 +1,6 @@
 {
   "name": "web-hd-sdk",
-  "version": "1.3.9",
+  "version": "1.4.0",
   "description": "ledger and trezor hd sign and export coin address.",
   "main": "dist/index.js",
   "dependencies": {
@@ -54,5 +54,12 @@
     "Trezor",
     "BTC",
     "ETH"
+  ],
+  "contributors": [
+    {
+      "name":"SummerJC",
+      "email": "",
+      "url": "https://github.com/SummerJC"
+    }
   ]
 }
