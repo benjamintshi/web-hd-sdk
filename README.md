@@ -1,5 +1,5 @@
 ### web-hd-sdk
-> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth （开发中.）。
+> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth （持续更新.）。
 
 #### Installing
 For the latest stable version:
@@ -7,12 +7,11 @@ For the latest stable version:
 npm install web-hd-sdk
 
 ```
-#### 使用是说明
+#### 使用说明
 ### 一、ETH-签名
 ```
 import {HdCore} from 'web-hd-sdk';
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
-const data = {
+const source_data = {
   "chainId": "3",
   "gasLimit": 30000,
   "gasPrice": 1000000000,
@@ -24,6 +23,7 @@ const data = {
   "toAddress": "0x87da9eceb42a8a0c23e6058447ff301da5f5f8a9",
   "txnCoinNum": 1.2
 };
+const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -45,8 +45,7 @@ res = {
 ### 二、BTC-签名
 ```
 import {HdCore} from 'web-hd-sdk';
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
-const data = {
+const source_data = {
   "input": {
     "address": "muJhWgBWKDaigLaoi3DLWQJZvDm2xZ7Zb7",
     "paths": [
@@ -91,6 +90,7 @@ const data = {
     }
   ]
 };
+const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -106,6 +106,38 @@ res = {
     message: "",
     signatures: "",
     version: ""
+};
+```
+
+### 三、BTC、ETH-地址导出
+```
+import {HdCore} from 'web-hd-sdk';
+let derivationPath = this.entity.coinName === 'eth' ? "44'/60'/0'" : "44'/1'/0'"
+const hd = new HdCore(this.entity.deviceName, this.entity.coinName, derivationPath);
+const res = await hd.getWalletAddress({
+    isHd: true,
+    segwit: false,
+    start: 0,
+    end: 5
+});
+console.log(res)
+```
+####返回结果
+
+```
+res = {
+    addressList: [{
+        address: "0xcd63f1f9d5ecf522208c978a76679a573d0466e0"
+        coinType: "eth"
+        path: "44'/60'/0'/0",
+        pubKeyObj:{
+            baseEncoding: ""
+            hex: "0x0356c0dfa323a12ff0e188012f439865d0a5d3291793b51e55496e7275a5432c27"
+        }
+    }]
+    chainCode: ""
+    publicKey: ""
+    xpubStr: ""
 };
 ```
 

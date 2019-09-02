@@ -1,40 +1,41 @@
-interface EthResult {
-    v?: string;
-    r?: string;
-    s?: string;
-}
-interface BtcResult {
-    signatures?: Array<Signature>;
-    version?: number;
-}
-interface Signature {
-    txid?: string;
-    sign?: string;
-}
-interface Result extends EthResult, BtcResult {
-    success?: boolean;
-    message?: string;
-}
-enum CoinType {
-    BTC = 'btc',
-    ETH = 'eth',
-    LTC = 'ltc',
-    BCH = 'bch'
-}
-enum HDType {
-    LEDGER = 'ledger',
-    TREZOR = 'trezor'
+class Utils {
+    public static toHexInt(number: number): string {
+        return (
+            this.toHexDigit((number >> 24) & 0xff) +
+            this.toHexDigit((number >> 16) & 0xff) +
+            this.toHexDigit((number >> 8) & 0xff) +
+            this.toHexDigit(number & 0xff)
+        );
+    }
+
+    public static toHexDigit(number: number): string {
+        const digits = '0123456789abcdef';
+        return digits.charAt(number >> 4) + digits.charAt(number & 0x0f);
+    }
+
+    public static parseHexString(str: string): Array<any> {
+        const result: Array<any> = new Array<any>();
+        while (str.length >= 2) {
+            result.push(parseInt(str.substring(0, 2), 16));
+            str = str.substring(2, str.length);
+        }
+        return result
+    }
+
+    public static getCompressPublicKey(publicKey: string): string {
+        let index: string;
+        if (publicKey.substring(0, 2) !== "04") {
+            return publicKey;
+        }
+        if (parseInt(publicKey.substring(128, 130), 16) % 2 !== 0) {
+            index = "03";
+        } else {
+            index = "02";
+        }
+        return index + publicKey.substring(2, 66);
+    }
 }
 
-interface  SignatureResult extends EthResult, BtcResult {
-    signeds?:Array<Signature>,
-    version?:number,
-    success?:boolean
-}
 export {
-    Result,
-    CoinType,
-    HDType,
-    Signature,
-    SignatureResult
+    Utils
 }

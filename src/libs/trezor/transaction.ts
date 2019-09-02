@@ -1,15 +1,16 @@
 import trezor from "trezor-connect";
 import BitCoreLib from "bitcore-lib";
-import {Signature, SignatureResult, Result} from "../common/utils";
+import {Signature, SignatureResult, Result} from "../model/utils";
 import {TrezorLogic} from "./logic";
 import {EthEntity} from "../model/eth";
+import {trezorBtcEntityResult} from "./common/utils";
 class TrezorTransaction {
     private logic : TrezorLogic
     constructor(coinType:string){
         this.logic  = new TrezorLogic(coinType);
     }
     public async BtcSign  (data):Promise<SignatureResult>{
-        let transData = this.logic.getBtcTrezorEntity(data);
+        let transData:any = this.logic.getBtcTrezorEntity(data);
         const  self = this;
        let res = await this.signTransaction( transData, function (resp) {
             let result:SignatureResult = {};
@@ -43,7 +44,7 @@ class TrezorTransaction {
      **/
    public  getSignature(message:string, isMutliSign:boolean, signResult:Array<any>):SignatureResult {
 
-        let bitcoreTransaction = new BitCoreLib.Transaction();
+        let bitcoreTransaction:any = new BitCoreLib.Transaction();
         bitcoreTransaction.fromString(message);
         let signatures:Array<any> = [];
         let index = isMutliSign == true ? 1 : 0;				//多签交易第0位为签名的顺序标记

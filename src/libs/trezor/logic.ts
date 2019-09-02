@@ -1,5 +1,5 @@
 
-import {CoinType} from "../common/utils";
+import {CoinType} from "../model/utils";
 import {SEND_ENUM,trezorBtcEntityResult,PAY_ENUM,dealWithInputsResult} from "./common/utils";
 import bitcore from 'bitcore-lib';
 import {BtcUtil} from "./common/BtcUtil";

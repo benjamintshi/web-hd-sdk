@@ -1,5 +1,5 @@
 import "babel-polyfill";
-import { CoinType } from '../common/utils';
+import { CoinType } from '../model/utils';
 const TransportWebUSB = require('@ledgerhq/hw-transport-webusb').default;
 const TransportU2F = require('@ledgerhq/hw-transport-u2f').default;
 const platform = require('platform');
