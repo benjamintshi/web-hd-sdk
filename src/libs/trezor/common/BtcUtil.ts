@@ -11,7 +11,8 @@ class BtcUtil{
         return (n & ~this.HD_HARDENED) >>> 0;
     }
     public getHDPath (path) {
-        var parts = path.toLowerCase().split('/');
+        let parts = path.toLowerCase().split('/');
+        let self = this;
         if (parts[0] !== 'm')
             throw "PATH_NOT_VALID";
         return parts.filter(function (p) {
@@ -31,7 +32,7 @@ class BtcUtil{
                     console.log('Path cannot contain negative values.');
                 }
                 if (hardened) { // hardened index
-                    n = this.toHardened(n);
+                    n = self.toHardened(n);
                 }
                 return n;
             });

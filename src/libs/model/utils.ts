@@ -17,7 +17,9 @@ interface Result extends EthResult, BtcResult {
 }
 enum CoinType {
     BTC = 'btc',
-    ETH = 'eth'
+    ETH = 'eth',
+    LTC = 'bch',
+    BCH = 'bch'
 }
 enum HDType {
     LEDGER = 'ledger',
@@ -33,5 +35,6 @@ export {
     Result,
     CoinType,
     HDType,
-    Signature
+    Signature,
+    SignatureResult
 }

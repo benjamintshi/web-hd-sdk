@@ -1,7 +1,7 @@
 import {TrezorLogic} from "./logic";
 import {TrezorTransaction} from "./transaction"
-import {CoinType, Result} from "../common/utils"
-class TrezorControl {
+import {CoinType, Result} from "../model/utils"
+class TrezorControler {
     private logic : TrezorLogic
     private transaction:TrezorTransaction;
     private coin_type:string;
@@ -23,5 +23,5 @@ class TrezorControl {
 }
 
 export {
-    TrezorControl
+    TrezorControler
 }

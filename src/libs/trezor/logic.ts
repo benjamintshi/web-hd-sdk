@@ -11,6 +11,7 @@ import {EthData, EthEntity} from "../model/eth";
 import ethUtil from "ethereumjs-util";
 import trezor from "trezor-connect";
 import {Utxos} from "../model/btc";
+const Tx = require('ethereumjs-tx');
 class TrezorLogic {
 
 
@@ -120,7 +121,7 @@ class TrezorLogic {
     // 处理BCH、LTC中paths顺序以及signIndex字段
    private dealWithInputs (paths, signIndex, redeemScript):dealWithInputsResult {
         // decode redeemScript, 取其中的publicKey
-        let redeemBuf = bitcoinjslib.script.decompile(Buffer.from(redeemScript, 'hex'));
+        let redeemBuf:any = bitcoinjslib.script.decompile(Buffer.from(redeemScript, 'hex'));
         let p:Array<any> = new Array();
         redeemBuf.forEach(item => {
             if(util.isBuffer(item)) {
@@ -179,7 +180,7 @@ class TrezorLogic {
         //生成完整报文所需数据
         let rawTx = ts;
         let EIP155Supported = true;
-        let eTx = new ethUtil.Tx(rawTx);
+        let eTx = new Tx(rawTx);
         eTx.raw[6] = Buffer.from([rawTx.chainId]);
         eTx.raw[7] = eTx.raw[8] = 0;
         let toHash = !EIP155Supported ? eTx.raw.slice(0, 6) : eTx.raw;
@@ -189,7 +190,7 @@ class TrezorLogic {
                 rawTx.v = result.payload.v;
                 rawTx.r = result.payload.r;
                 rawTx.s = result.payload.s;
-                eTx = new ethUtil.Tx(rawTx);
+                eTx = new Tx(rawTx);
                 rawTx.rawTx = JSON.stringify(rawTx);
                 rawTx.signedTx = '0x' + eTx.serialize().toString('hex');
                 rawTx.isError = false;

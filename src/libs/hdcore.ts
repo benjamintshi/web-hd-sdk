@@ -1,6 +1,6 @@
 
 /**
- * 
+ *
  */
 import { Result, HDType } from './model/utils';
 import { LedgerControler } from './ledger/index';
@@ -23,7 +23,7 @@ export class HdCore {
                 signed = await this.ledger.signTransaction(entity);
                 break;
             case HDType.TREZOR:
-
+                signed = await this.trezor.signTransaction(entity);
                 break;
         }
         return signed;
