@@ -21,13 +21,8 @@ class LedgerControler {
             case CoinType.ETH:
                 return await this.transaction.signEth(data.input.path, entity);
             case CoinType.BTC:
-                debugger
-                return await this.transaction.signBtcSeries(entity);
             case CoinType.BCH:
-                debugger
-                return await this.transaction.signBtcSeries(entity);
             case CoinType.LTC:
-                debugger
                 return await this.transaction.signBtcSeries(entity);
         }
     }

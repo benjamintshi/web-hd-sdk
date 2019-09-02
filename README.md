@@ -42,7 +42,7 @@ res = {
     s: "",
 };
 ```
-### 二、BTC-签名
+### 二、BTC、BCH、LTC -签名
 ```
 import {HdCore} from 'web-hd-sdk';
 const source_data = {
@@ -109,7 +109,7 @@ res = {
 };
 ```
 
-### 三、BTC、ETH-地址导出
+### 三、BTC、BCH、LTC、ETH-地址导出
 ```
 import {HdCore} from 'web-hd-sdk';
 let derivationPath = this.entity.coinName === 'eth' ? "44'/60'/0'" : "44'/1'/0'"
