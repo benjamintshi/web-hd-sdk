@@ -5,12 +5,15 @@ import { EthEntity } from '../model/eth';
 import { LedgerTransport } from "./transport";
 const Bitcore = require('bitcore-lib');
 const Tx = require('ethereumjs-tx');
+
 class LedgerTransaction {
     private transport: any;
     private coin_type: string;
+
     constructor(coinType: string) {
         this.coin_type = coinType;
     }
+
     public async signEth(path: string, entity: EthEntity): Promise<Result> {
         let res: Result = {};
         let signed: any;
@@ -27,6 +30,12 @@ class LedgerTransaction {
         };
         return res;
     }
+
+    /**
+     * support btc,bch,ltc sign.
+     * @param {BtcEntity} entity
+     * @returns {Promise<Result>}
+     */
     public async signBtc(entity: BtcEntity): Promise<Result> {
         debugger
         let signed: any;
@@ -35,12 +44,13 @@ class LedgerTransaction {
             signed = await this.transport.createPaymentTransactionNew(
                 entity.inputs,
                 entity.paths,
-                undefined,
+                entity.sigHashType ? entity.sigHashType : undefined,//bch
                 entity.outputScript,
                 undefined,
                 undefined,
                 entity.segwit,
-                undefined ? Math.floor(Date.now() / 1000) - 15 * 60 : undefined
+                undefined ? Math.floor(Date.now() / 1000) - 15 * 60 : undefined,
+                entity.additionals ? entity.additionals : undefined //bch
             )
         } else {
             signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
@@ -54,6 +64,7 @@ class LedgerTransaction {
         };
         return res;
     }
+
     private async getSignature(signMsg: any): Promise<Array<Signature>> {
         debugger
         const tx = new Bitcore.Transaction(signMsg);
@@ -67,12 +78,14 @@ class LedgerTransaction {
         })
         return signatures;
     }
+
     private getVersion(signMsg: string): (number) {
         debugger
         const tx = new Bitcore.Transaction(signMsg);
         return tx.version;
     }
 }
+
 export {
     LedgerTransaction
 }

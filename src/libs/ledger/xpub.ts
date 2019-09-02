@@ -1,11 +1,11 @@
-import {WalletHd, WalletPublicKey, XPubEntity} from '../model/hd';
-import {crypto} from 'bitcore-lib';
-import {encode} from 'bs58'
+import { WalletHd, WalletPublicKey, XPubEntity } from '../model/hd';
+import { crypto } from 'bitcore-lib';
+import { encode } from 'bs58'
 import * as BIPPath from "bip32-path";
-import {networks} from '../common/networks';
-import {Utils} from '../common/utils';
-import {LedgerTransport} from './transport';
-import {padStart} from 'lodash';
+import { networks } from '../common/networks';
+import { Utils } from '../common/utils';
+import { LedgerTransport } from './transport';
+import { padStart } from 'lodash';
 
 class Xpub {
     private derivation_path: string;// = "44'/0'/0'";

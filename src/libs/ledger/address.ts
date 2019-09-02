@@ -1,11 +1,9 @@
-import {LedgerTransport} from "./transport";
-import {Xpub} from './xpub';
-import {AddressParam} from "../model/hd";
-import {HDPublicKey} from "bitcore-lib";
-
+import { LedgerTransport } from "./transport";
+import { Xpub } from './xpub';
+import { AddressParam } from "../model/hd";
+import { HDPublicKey } from "bitcore-lib";
 const HDKey = require("hdkey");
 const ethereumWallet = require('ethereumjs-wallet');
-
 class LedgerAddress {
     private xPub: Xpub;
     private derivation_path: string;
@@ -23,11 +21,11 @@ class LedgerAddress {
         if (param.isHd) {
             let device: any = await new LedgerTransport(this.coin_type).getTransport();
             resp = await device.getAddress(this.derivation_path, false, true);
-            dhPub.publicKey = new Buffer(resp.publicKey, 'hex');
-            dhPub.chainCode = new Buffer(resp.chainCode, 'hex');
+            dhPub.publicKey = Buffer.from(resp.publicKey, 'hex');
+            dhPub.chainCode = Buffer.from(resp.chainCode, 'hex');
         } else {
-            dhPub.publicKey = new Buffer(param.publicKey ? param.publicKey : '', 'hex');
-            dhPub.chainCode = new Buffer(param.chainCode ? param.chainCode : '', 'hex');
+            dhPub.publicKey = Buffer.from(param.publicKey ? param.publicKey : '', 'hex');
+            dhPub.chainCode = Buffer.from(param.chainCode ? param.chainCode : '', 'hex');
         }
         const addressList: Array<any> = new Array<any>();
         for (let i: number = param.start; i < param.end; i++) {

@@ -25,6 +25,12 @@ class LedgerControler {
             case CoinType.BTC:
                 debugger
                 return await this.transaction.signBtc(entity);
+            case CoinType.BCH:
+                debugger
+                return await this.transaction.signBtc(entity);
+            case CoinType.LTC:
+                debugger
+                return await this.transaction.signBtc(entity);
         }
     }
     public async getCoinAddressList(param: AddressParam): Promise<any> {
@@ -36,7 +42,6 @@ class LedgerControler {
                 return await this.address.getBtcAddress(param);
         }
     }
-
 }
 export {
     LedgerControler
