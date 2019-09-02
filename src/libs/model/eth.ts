@@ -5,7 +5,7 @@ interface EthEntity {
     to: string;
     value: string;
     data: string;
-    chainId: string;
+    chainId: chainIdType;
     path?:string
 }
 interface EthData {
@@ -19,6 +19,7 @@ interface EthData {
     data:string;
 
 }
+type chainIdType = string | number;
 interface EthInput {
     address: string;
     path: string;

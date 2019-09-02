@@ -16,14 +16,14 @@ export class HdCore {
         this.ledger = new LedgerControler(coinType, derivationPath);
         this.trezor = new TrezorControler(coinType);
     }
-    public async signTransaction(entity: any): Promise<Result> {
+    public async signTransaction(entity: any,network): Promise<Result> {
         let signed: Result = {};
         switch (this.device_name) {
             case HDType.LEDGER:
                 signed = await this.ledger.signTransaction(entity);
                 break;
             case HDType.TREZOR:
-                signed = await this.trezor.signTransaction(entity);
+                signed = await this.trezor.signTransaction(entity,network);
                 break;
         }
         return signed;

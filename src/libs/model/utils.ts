@@ -19,7 +19,8 @@ enum CoinType {
     BTC = 'btc',
     ETH = 'eth',
     LTC = 'bch',
-    BCH = 'bch'
+    BCH = 'bch',
+    BITCOIN = 'bitcoin'
 }
 enum HDType {
     LEDGER = 'ledger',

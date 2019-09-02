@@ -1,22 +1,25 @@
 import {TrezorLogic} from "./logic";
 import {TrezorTransaction} from "./transaction"
 import {CoinType, Result} from "../model/utils"
+
 class TrezorControler {
-    private logic : TrezorLogic
-    private transaction:TrezorTransaction;
-    private coin_type:string;
-    constructor(coinType:string) {
-        this.logic  = new TrezorLogic(coinType);
+    private logic: TrezorLogic
+    private transaction: TrezorTransaction;
+    private coin_type: string;
+
+    constructor(coinType: string) {
+        this.logic = new TrezorLogic(coinType);
         this.transaction = new TrezorTransaction(coinType);
         this.coin_type = coinType;
 
     }
-    public async signTransaction(data: any): Promise<any> {
+
+    public async signTransaction(data: any, network): Promise<any> {
         switch (this.coin_type) {
             case CoinType.ETH:
-                 return await this.transaction.EthSign(data);
+                return await this.transaction.EthSign(data);
             case CoinType.BTC:
-                return await this.transaction.BtcSign(data);
+                return await this.transaction.BtcSign(data, network);
         }
     }
 

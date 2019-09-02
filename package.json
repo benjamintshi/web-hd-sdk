@@ -44,7 +44,8 @@
     "clean": "rm -rf dist",
     "tsc": "npm run clean && ./node_modules/.bin/tsc",
     "ts-publish": "npm run tsc && npm publish",
-    "tsc-dev": "npm run tsc &&  cp -rf  dist/libs/ /Users/shitao/works/Invault-Soft-Verify/node_modules/web-hd-sdk/dist/libs/ "
+    "tsc-dev": "npm run tsc &&  cp -rf  dist/libs/ /Users/shitao/works/Invault-Soft-Verify/node_modules/web-hd-sdk/dist/libs/ ",
+    "tsc-dev-w": "npm run tsc &&  cp -rf  dist/libs/ /Users/alading/Desktop/Invault-Soft-Verify/node_modules/web-hd-sdk/dist/libs/ "
   },
   "author": "Benmain",
   "license": "ISC",

@@ -1,43 +1,52 @@
-
 import {CoinType} from "../model/utils";
-import {SEND_ENUM,trezorBtcEntityResult,PAY_ENUM,dealWithInputsResult} from "./common/utils";
-//import bitcore from 'bitcore-lib';
+import {SEND_ENUM, trezorBtcEntityResult, PAY_ENUM, dealWithInputsResult} from "./common/utils";
+
 import {BtcUtil} from "./common/BtcUtil";
-//import bitcoinjslib from 'bitcoinjs-lib';
-//import util from 'util';
-import { toHex, numberToHex } from 'web3-utils';
-import { convert } from 'ethereumjs-units';
+
+import {toHex, numberToHex} from 'web3-utils';
+import {convert} from 'ethereumjs-units';
 import {EthData, EthEntity} from "../model/eth";
-//import ethUtil from "ethereumjs-util";
 import trezor from "trezor-connect";
-import {Utxos} from "../model/btc";
+
 const Tx = require('ethereumjs-tx');
 const bitcoinjslib = require("bitcoinjs-lib");
 const bitcore = require("bitcore-lib");
 const ethUtil = require("ethereumjs-util");
 const util = require("util");
+/**
+ ExTrezorManager 扩展对象
+ 钱包:Ledger
+ */
+trezor.manifest({
+    email: 'xiongjie@invault.io',
+    appUrl: 'https://localhost'
+});
 
 class TrezorLogic {
 
 
     private coin_type: string;
-    private  BtcUtils : BtcUtil;
+    private BtcUtils: BtcUtil;
+
     constructor(coinType: string) {
         this.coin_type = coinType;
         this.BtcUtils = new BtcUtil();
 
     }
-    public async getBtcTrezorEntity(data:any):Promise<trezorBtcEntityResult>{
+
+    public async getBtcTrezorEntity(data: any): Promise<trezorBtcEntityResult> {
         return {
-           inputs : await this.getTrezorInputs(data),
-           outputs : await this.getTrezorOutputs(data.outputs),
-            multisig : true
+            inputs: await this.getTrezorInputs(data),
+            outputs: await this.getTrezorOutputs(data.outputs),
+            multisig: data.input && data.input.paths && data.input.paths.length > 1 ? true : false
         }
 
     }
-    private getEthTrezorEntity(){
+
+    private getEthTrezorEntity() {
 
     }
+
     /**
      获取trezor的inputs的数据结构
      @param      utxos        未花费的交易数组
@@ -48,18 +57,18 @@ class TrezorLogic {
      @param      redeemScript  赎回脚本
      @return      返回trezor可用的inputs
      **/
-    public async getTrezorInputs (data:any):Promise<any> {
-        let inputs:Array<any> = [], input:any = {};
-        let coinName:string = this.coin_type.toLocaleLowerCase();
-        let dataInput:any = data.input;
-        if (dataInput.paths.length > 1){
-            if(coinName === CoinType.BCH || coinName === CoinType.LTC){
+    public async getTrezorInputs(data: any): Promise<any> {
+        let inputs: Array<any> = [], input: any = {};
+        let coinName: string = this.coin_type.toLocaleLowerCase();
+        let dataInput: any = data.input;
+        if (dataInput.paths.length > 1) {
+            if (coinName === CoinType.BCH || coinName === CoinType.LTC) {
                 let dealRes = this.dealWithInputs(dataInput.paths, dataInput.signIndex, dataInput.redeemScript);
 
                 dataInput.paths = dealRes.newPaths;
                 dataInput.signIndex = dealRes.newSignIndex
             }
-         }
+        }
 
         data.utxos.forEach(utxo => {
             input = {
@@ -68,13 +77,13 @@ class TrezorLogic {
                 prev_hash: utxo.txid
             }
             input.script_type = dataInput.paths[dataInput.signIndex].addressType;
-            input.amount = bitcore.Unit.fromBTC(utxo.coinNum).toSatoshis();
+            input.amount = JSON.stringify(bitcore.Unit.fromBTC(utxo.coinNum).toSatoshis());
 
             inputs.push(input);
         });
         //多签地址
         if (dataInput.paths.length > 1) {
-            let pubkeys:any = [];
+            let pubkeys: any = [];
             dataInput.paths.forEach(path => {
                 let address_n = this.BtcUtils.getHDPath(path.path);
                 address_n.splice(0, 3);
@@ -98,51 +107,53 @@ class TrezorLogic {
         //   }
         // }
         return inputs;
-        }
+    }
+
     /**
      * 获取 trezor 需要的 outputs 结构
      * @param outputs
      * @returns {Promise<Array>}
      */
-    private async getTrezorOutputs (outputs) {
-        let tmpArray:Array<any> = [];
+    private async getTrezorOutputs(outputs) {
+        let tmpArray: Array<any> = [];
         outputs.forEach(output => {
-        if (!output.address && output.coinNum === 0){
-            tmpArray.push({
-                op_return_data: output.hex.substr(4),
-                amount: '0',
-                script_type: PAY_ENUM.op_return_type
-            });
-        } else{
-            tmpArray.push({
-                address: output.address,
-                amount: bitcore.Unit.fromBTC(output.coinNum).toSatoshis(),
-                script_type: output.isScript ? PAY_ENUM.p2sh :PAY_ENUM.p2pkh
-            });
-        }
+            if (!output.address && output.coinNum === 0) {
+                tmpArray.push({
+                    op_return_data: output.hex.substr(4),
+                    amount: '0',
+                    script_type: PAY_ENUM.op_return_type
+                });
+            } else {
+                tmpArray.push({
+                    address: output.address,
+                    amount: JSON.stringify(bitcore.Unit.fromBTC(output.coinNum).toSatoshis()),
+                    script_type: output.isScript ? PAY_ENUM.p2sh : PAY_ENUM.p2pkh
+                });
+            }
         });
-            return tmpArray;
+        return tmpArray;
     }
+
     // 处理BCH、LTC中paths顺序以及signIndex字段
-   private dealWithInputs (paths, signIndex, redeemScript):dealWithInputsResult {
+    private dealWithInputs(paths, signIndex, redeemScript): dealWithInputsResult {
         // decode redeemScript, 取其中的publicKey
-        let redeemBuf:any = bitcoinjslib.script.decompile(Buffer.from(redeemScript, 'hex'));
-        let p:Array<any> = new Array();
+        let redeemBuf: any = bitcoinjslib.script.decompile(Buffer.from(redeemScript, 'hex'));
+        let p: Array<any> = new Array();
         redeemBuf.forEach(item => {
-            if(util.isBuffer(item)) {
-                 p.push(item.toString('hex'));
+            if (util.isBuffer(item)) {
+                p.push(item.toString('hex'));
             }
         });
 
         // 对paths进行重新排序, 并拿到新的signIndex值
-        let newPaths:Array<any> = new Array();
-        let newSignIndex:any = null;
+        let newPaths: Array<any> = new Array();
+        let newSignIndex: any = null;
         p.forEach((item, index) => {
-            if (paths[signIndex].addressPublicKey === item){
+            if (paths[signIndex].addressPublicKey === item) {
                 newSignIndex = index;
             }
             paths.forEach(path => {
-                if(path.addressPublicKey === item){
+                if (path.addressPublicKey === item) {
                     newPaths.push(path)
                 }
             })
@@ -151,15 +162,16 @@ class TrezorLogic {
             newPaths: newPaths,
             newSignIndex: newSignIndex
         }
-     }
+    }
+
     /**
      * 获取签名需要返回的数据  - ETH
      * @param data      服务返回签名所需要的数据
      * @returns transaction  返回交易对象
      */
-   public async getTransactionDataForEth (data:EthData):Promise< EthEntity > {
+    public  getTransactionDataForEth(data): EthEntity {
 
-        let signEthereumData:EthEntity = {
+        let signEthereumData: EthEntity = {
             // path: data.input.path,
             nonce: numberToHex(data.nonce),
             gasPrice: numberToHex(data.gasPrice),
@@ -167,21 +179,23 @@ class TrezorLogic {
             to: toHex(data.toAddress),
             value: numberToHex(convert(data.txnCoinNum, 'eth', 'wei')),
             data: data.data == null ? '' : toHex(data.data),
-            chainId: numberToHex(data.chainId)
+            chainId: Number(data.chainId)
         }
         return signEthereumData;
     }
+
     /**
      * 硬件签名 - ETH
      * @param ts
      * @param callback
      * @returns {Promise<void>}
      */
-    public async trezorSignTxForEth (ts,path, callback) {
+    public async trezorSignTxForEth(ts, path, callback) {
         let signData = {
             path: path,
-            transaction :ts
+            transaction: ts
         };
+        debugger
         //生成完整报文所需数据
         let rawTx = ts;
         let EIP155Supported = true;
@@ -190,7 +204,7 @@ class TrezorLogic {
         eTx.raw[7] = eTx.raw[8] = 0;
         let toHash = !EIP155Supported ? eTx.raw.slice(0, 6) : eTx.raw;
         // let txToSign = ethUtil.rlp.encode(toHash);
-        trezor.ethereumSignTransaction(signData).then(function(result) {
+        trezor.ethereumSignTransaction(signData).then(function (result) {
             if (result.success) {
                 rawTx.v = result.payload.v;
                 rawTx.r = result.payload.r;
@@ -215,6 +229,7 @@ class TrezorLogic {
 
 
 }
+
 export {
     TrezorLogic
 }
