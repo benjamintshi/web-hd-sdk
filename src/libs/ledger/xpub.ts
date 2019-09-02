@@ -1,11 +1,10 @@
-import {WalletHd, WalletPublicKey, XPubEntity} from '../model/hd';
-import {crypto} from 'bitcore-lib';
-import {encode} from 'bs58'
-import * as BIPPath from "bip32-path";
-import {networks} from '../common/networks';
-import {Utils} from '../common/utils';
-import {LedgerTransport} from './transport';
-import {padStart} from 'lodash';
+import { WalletHd, WalletPublicKey, XPubEntity } from '../model/hd';
+import { crypto } from 'bitcore-lib';
+import { encode } from 'bs58'
+import * as BipPath from "bip32-path";
+import { Utils } from '../common/utils';
+import { LedgerTransport } from './transport';
+import { padStart } from 'lodash';
 
 class Xpub {
     private derivation_path: string;// = "44'/0'/0'";
@@ -15,7 +14,7 @@ class Xpub {
     constructor(derivationPath: string, coinType: string) {
         this.derivation_path = derivationPath;
         this.coin_type = coinType;
-        this.coin_num = (BIPPath.fromString(this.derivation_path).toPathArray()[1] & ~0x80000000).toString();
+        this.coin_num = (BipPath.fromString(this.derivation_path).toPathArray()[1] & ~0x80000000).toString();
     }
 
     public async getXpub(segwit: boolean): Promise<any> {
@@ -32,7 +31,7 @@ class Xpub {
     private async getWalletPublicKey(): Promise<WalletHd> {
         let device = await new LedgerTransport(this.coin_type).getTransport();
         //获取账户级public key
-        let parentPath: string = BIPPath.fromPathArray(BIPPath.fromString(this.derivation_path).toPathArray().slice(0, -1)).toString();
+        let parentPath: string = BipPath.fromPathArray(BipPath.fromString(this.derivation_path).toPathArray().slice(0, -1)).toString();
         let accountPublicKey: WalletPublicKey = await device.getWalletPublicKey(this.derivation_path);
         let coinPublicKey: WalletPublicKey = await device.getWalletPublicKey(parentPath);
         let resp: WalletHd = {
@@ -45,7 +44,7 @@ class Xpub {
 
 
     private async initialize(hd: WalletHd): Promise<string> {
-        const network: any = this.getNetworkBySymbol().bitcoinjs;
+        const network: any = Utils.getNetworkBySymbol(this.coin_num).bitcoinjs;
         let parentPublicKey: string = hd.parentPublicKey;
         let hexPubKey: Array<any> = Utils.parseHexString(parentPublicKey);
         let bufPublicKey: Buffer = crypto.Hash.sha256(Buffer.from(hexPubKey));
@@ -59,7 +58,7 @@ class Xpub {
                 childNum: childNum,
                 chainCode: hd.chainCode,
                 publicKey: hd.publicKey,
-                network: network.bip32.public //0x043587cf
+                network: network.bip32.public //todo ltc need update.
             }
         );
         return this.encodeBase58Check(xpubStr);
@@ -83,12 +82,6 @@ class Xpub {
         chkSum = chkSum.slice(0, 4);
         let hash: Array<any> = strVal.concat(Array.from(chkSum));
         return encode(Buffer.from(hash));
-    }
-
-    private getNetworkBySymbol(): any {
-        //const networkId: any = Object.keys(networks).find((id: string): any => networks[id].unit === this.coin_type.toUpperCase())
-        const networkId: any = Object.keys(networks).find((id: string): any => id === this.coin_num)
-        return networks[networkId];
     }
 }
 

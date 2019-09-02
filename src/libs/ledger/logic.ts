@@ -1,13 +1,13 @@
 import buildOutputScript from 'build-output-script';
-import {Unit} from 'bitcore-lib';
-import {BtcEntity, BtcData, Utxo, OutPut} from '../model/btc';
-import {zip} from 'lodash';
-import {LedgerTransport} from './transport'
-import {EthEntity, EthData} from '../model/eth';
-import {toHex, numberToHex} from 'web3-utils';
-import {convert} from 'ethereumjs-units';
-import {CoinType} from '../model/utils';
-
+import { Unit } from 'bitcore-lib';
+import { BtcSeriesEntity, BtcSeriesData, Utxo, OutPut } from '../model/btc';
+import { zip } from 'lodash';
+import { LedgerTransport } from './transport'
+import { EthEntity, EthData } from '../model/eth';
+import { toHex, numberToHex } from 'web3-utils';
+import { convert } from 'ethereumjs-units';
+import { CoinType } from '../model/utils';
+import { Tools } from '../common/tools';
 const axios = require('axios');
 
 class LedgerLogic {
@@ -20,7 +20,6 @@ class LedgerLogic {
     }
 
     public async getLedgerEntity(data: any): Promise<any> {
-        debugger
         switch (this.coin_type) {
             case CoinType.ETH:
                 return await this.getEthLedgerEntity(data);
@@ -29,9 +28,8 @@ class LedgerLogic {
         }
     }
 
-    private async getBtcLedgerEntity(data: BtcData): Promise<BtcEntity> {
-        debugger
-        let entity: BtcEntity = {
+    private async getBtcLedgerEntity(data: BtcSeriesData): Promise<BtcSeriesEntity> {
+        let entity: BtcSeriesEntity = {
             inputs: await this.getLedgerInputs(data),
             outputScript: await this.getLedgerOutputScript(data.outputs),
             segwit: false,
@@ -53,8 +51,9 @@ class LedgerLogic {
         return entity;
     }
 
-    private async getLedgerInputs(data: BtcData): Promise<any> {
-        debugger
+    private async getLedgerInputs(data: BtcSeriesData): Promise<any> {
+        //格式化地址
+        data.input.address = Tools.getCoinAddress(data.input.address, this.coin_type);
         let inputs: any = await this.getTxInputs(data.utxos);
         if (data.input.paths.length > 1) {
             inputs.forEach(element => {
@@ -65,7 +64,6 @@ class LedgerLogic {
     }
 
     private async getTxInputs(listUtxo: Array<Utxo>): Promise<any> {
-        debugger
         const transport: any = await this.transport.getTransport();
         let ids: Array<string> = new Array<string>();
         let splitTxs: Array<any> = new Array<any>();
@@ -73,7 +71,6 @@ class LedgerLogic {
         listUtxo.forEach((element) => {
             ids.push(element.txid);
         });
-
         let url = "https://api.ledgerwallet.com/blockchain/v2/btc_testnet/transactions/" + ids.join(',') + "/hex";
         const res = await axios.get(url);
         const data = res.data;
@@ -87,11 +84,10 @@ class LedgerLogic {
     }
 
     private async getLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {
-        debugger
         let tmp: Array<any> = new Array<any>();
         listOutput.forEach(element => {
             tmp.push({
-                address: element.address,
+                address: Tools.getCoinAddress(element.address, this.coin_type),
                 value: Unit.fromBTC(element.coinNum).toSatoshis()
             });
         });

@@ -1,3 +1,4 @@
+import { networks } from '../common/networks';
 class Utils {
     public static toHexInt(number: number): string {
         return (
@@ -33,6 +34,11 @@ class Utils {
             index = "02";
         }
         return index + publicKey.substring(2, 66);
+    }
+    public static getNetworkBySymbol(coinNum:string): any {
+        //const networkId: any = Object.keys(networks).find((id: string): any => networks[id].unit === this.coin_type.toUpperCase())
+        const networkId: any = Object.keys(networks).find((id: string): any => id === coinNum)
+        return networks[networkId];
     }
 }
 

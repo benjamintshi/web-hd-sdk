@@ -1,15 +1,29 @@
-interface BtcEntity {
+interface BtcSeriesEntity {
     inputs: Array<any>;
     paths: Array<string>;
     outputScript: string;
     segwit: boolean;
+    /**
+     * @param additionals list of additionnal options
+     *
+     * - "bech32" for spending native segwit outputs
+     * - "abc" for bch
+     * - "gold" for btg
+     * - "bipxxx" for using BIPxxx
+     * - "sapling" to indicate a zec transaction is supporting sapling (to be set over block 419200)
+     */
+    additionals?:string;
+    /**
+     * sigHashType is the hash type of the transaction to sign, or default (all)
+     */
+    sigHashType?:string;
 }
-interface BtcData {
-    input: BtcInput;
+interface BtcSeriesData {
+    input: Input;
     outputs: Array<OutPut>;
     utxos: Array<Utxo>;
 }
-interface BtcInput {
+interface Input {
     address: string;
     paths: Array<Path>;
     requires: number;
@@ -46,10 +60,10 @@ interface signTransactionRes{
 
 }
 export {
-    BtcEntity,
+    BtcSeriesEntity,
     Utxos,
     Utxo,
     OutPuts,
     OutPut,
-    BtcData
+    BtcSeriesData
 }

@@ -1,5 +1,5 @@
 ### web-hd-sdk
-> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth （持续更新.）。
+> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth、bch:adc、ltc （持续更新.）。
 
 #### Installing
 For the latest stable version:
@@ -23,7 +23,7 @@ const source_data = {
   "toAddress": "0x87da9eceb42a8a0c23e6058447ff301da5f5f8a9",
   "txnCoinNum": 1.2
 };
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
+const hd = new HdCore('ledger', 'eth');
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -42,7 +42,7 @@ res = {
     s: "",
 };
 ```
-### 二、BTC-签名
+### 二、BTC、BCH、LTC -签名
 ```
 import {HdCore} from 'web-hd-sdk';
 const source_data = {
@@ -90,7 +90,7 @@ const source_data = {
     }
   ]
 };
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName,source_data.input.path);
+const hd = new HdCore('ledger', 'btc');
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -109,11 +109,11 @@ res = {
 };
 ```
 
-### 三、BTC、ETH-地址导出
+### 三、BTC、BCH、LTC、ETH-地址导出
 ```
 import {HdCore} from 'web-hd-sdk';
 let derivationPath = this.entity.coinName === 'eth' ? "44'/60'/0'" : "44'/1'/0'"
-const hd = new HdCore(this.entity.deviceName, this.entity.coinName, derivationPath);
+const hd = new HdCore('ledger', 'btc', derivationPath);
 const res = await hd.getWalletAddress({
     isHd: true,
     segwit: false,
