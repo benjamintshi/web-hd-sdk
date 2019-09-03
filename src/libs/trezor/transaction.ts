@@ -1,6 +1,7 @@
 import trezor from "trezor-connect";
-import {SignatureResult, CoinType} from "../model/utils";
+import {SignatureResult, CoinType, Result, Signature} from "../model/utils";
 import {TrezorLogic} from "./logic";
+import {TransactionModel} from "../common/transaction";
 
 const BitCoreLib = require("bitcore-lib");
 /**
@@ -13,20 +14,28 @@ const BitCoreLib = require("bitcore-lib");
 // });
 
 class TrezorTransaction {
-    private logic: TrezorLogic
-
-    constructor(coinType: string) {
+    private logic: TrezorLogic;
+    private tranactionModel:TransactionModel;
+    private networkType:string;
+    private device_name:string;
+    constructor(coinType: string,networkType:string,device_name:string ) {
         this.logic = new TrezorLogic(coinType);
+        this.tranactionModel = new TransactionModel(true);
+        this.networkType = networkType;
+        this.device_name = device_name;
+
     }
 
-    public async BtcSign(data, network): Promise<SignatureResult> {
+    public async BtcSign(data): Promise<SignatureResult> {
         let transData: any = await this.logic.getBtcTrezorEntity(data);
         const self = this;
-        let result: SignatureResult = {};
-        await this.signTransaction(transData, network, function (resp) {
-            result.success = false;
+        let result: SignatureResult = {
+            success:false
+        };
+        await this.signTransaction(transData, function (resp) {
             if (resp.success) {
-                result = self.getSignature(resp.payload.serializedTx, transData.multisig, resp.payload.signatures);
+                result.signeds = self.tranactionModel.getSignature(resp.payload.serializedTx, transData.multisig);
+                result.version= self.tranactionModel.getVersion(resp.payload.serializedTx);
                 result.success = true;
             } else {
                 result = resp;
@@ -38,57 +47,54 @@ class TrezorTransaction {
 
     }
 
-    public async signTransaction(data, newtwork, callback): Promise<any> {
+    public async signTransaction(data, callback): Promise<any> {
         const result = await trezor.signTransaction({
             inputs: data.inputs,
             outputs: data.outputs,
-            coin: newtwork
+            coin: this.networkType
         });
         callback(result)
     }
 
-    /**
-     包装硬件返回结果 BTC 系列
-     @message      硬件返回信息
-     @isMutliSign    是否为多签交易
-     @signResult    签名后的交易报文（trezor）
-     **/
-    public getSignature(message: string, isMutliSign: boolean, signResult: Array<any>): SignatureResult {
 
-        let bitcoreTransaction: any = new BitCoreLib.Transaction();
-        bitcoreTransaction.fromString(message);
-        let signatures: Array<any> = [];
-        let index = isMutliSign == true ? 1 : 0;				//多签交易第0位为签名的顺序标记
-        bitcoreTransaction.inputs.forEach(function (vin, i) {
-            let sign;
-            if (signResult == undefined) {
-                sign = vin.script.chunks[index].buf.toString("hex");
-                sign = sign.substring(0, sign.length - 2);
-            }
-            else {
-                sign = signResult[i];
-            }
-            signatures.push({
-                txid: vin.prevTxId.toString('hex'),
-                signature: sign
-            });
-        });
-        let result: SignatureResult = {
-            signeds: signatures,
-            version: bitcoreTransaction.version
-        };
-        return result;
-    }
 
     /**
      * Eth签名
      * */
-    public async EthSign(data: any) {
+    public async EthSign(data: any): Promise<Result> {
         let transData = this.logic.getTransactionDataForEth(data);
-        let res = await this.logic.trezorSignTxForEth(transData, data.input.path, function (resp) {
-            return resp;
-        });
+        return await this.logic.trezorSignTxForEth(transData, data.input.path);
+
     }
+
+    /**
+     * bch签名
+     */
+    public  async BchSign(data:any): Promise<SignatureResult> {
+        data.input.address = this.logic.bchAddressConvert(data.input.address,this.device_name );
+        data.outputs.forEach(item => {
+            item.address = this.logic.bchAddressConvert(item.address, this.device_name);
+        });
+
+        if (data.input.paths.length > 1) {
+            data.input = this.logic.dealWithInputs(data.input);
+        }
+        return this.BtcSign(data);
+    }
+    /**
+     * Ltc签名
+     */
+    public  async LtcSign(data:any): Promise<SignatureResult> {
+        data.input.address = this.logic.ltcAddressConvert(data.input.address,this.device_name );
+        data.outputs.forEach(item => {
+            item.address = this.logic.ltcAddressConvert(item.address, this.device_name);
+        });
+        if (data.input.paths.length > 1) {
+           data.input = this.logic.dealWithInputs(data.input);
+        }
+        return this.BtcSign(data);
+    }
+
 }
 
 export {

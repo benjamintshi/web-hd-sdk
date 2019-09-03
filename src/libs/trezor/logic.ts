@@ -1,4 +1,4 @@
-import {CoinType} from "../model/utils";
+import {CoinType, Result} from "../model/utils";
 import {SEND_ENUM, trezorBtcEntityResult, PAY_ENUM, dealWithInputsResult} from "./common/utils";
 
 import {BtcUtil} from "./common/BtcUtil";
@@ -7,12 +7,13 @@ import {toHex, numberToHex} from 'web3-utils';
 import {convert} from 'ethereumjs-units';
 import {EthData, EthEntity} from "../model/eth";
 import trezor from "trezor-connect";
-
+import bchaddrjs from "bchaddrjs";
 const Tx = require('ethereumjs-tx');
 const bitcoinjslib = require("bitcoinjs-lib");
 const bitcore = require("bitcore-lib");
 const ethUtil = require("ethereumjs-util");
 const util = require("util");
+
 /**
  ExTrezorManager 扩展对象
  钱包:Ledger
@@ -59,16 +60,7 @@ class TrezorLogic {
      **/
     public async getTrezorInputs(data: any): Promise<any> {
         let inputs: Array<any> = [], input: any = {};
-        let coinName: string = this.coin_type.toLocaleLowerCase();
         let dataInput: any = data.input;
-        if (dataInput.paths.length > 1) {
-            if (coinName === CoinType.BCH || coinName === CoinType.LTC) {
-                let dealRes = this.dealWithInputs(dataInput.paths, dataInput.signIndex, dataInput.redeemScript);
-
-                dataInput.paths = dealRes.newPaths;
-                dataInput.signIndex = dealRes.newSignIndex
-            }
-        }
 
         data.utxos.forEach(utxo => {
             input = {
@@ -100,12 +92,6 @@ class TrezorLogic {
                 input.multisig.m = dataInput.requires;
             });
         }
-        // else {
-        //   //单签地址，p2pkh 移除amount属性
-        //   if (inputs.length == 1 && paths[signIndex].addressType === process.env.SEND_ENUM.p2pkh) {
-        //     delete inputs[0].amount;
-        //   }
-        // }
         return inputs;
     }
 
@@ -135,33 +121,44 @@ class TrezorLogic {
     }
 
     // 处理BCH、LTC中paths顺序以及signIndex字段
-    private dealWithInputs(paths, signIndex, redeemScript): dealWithInputsResult {
+    public dealWithInputs(dataInputs): dealWithInputsResult {
         // decode redeemScript, 取其中的publicKey
-        let redeemBuf: any = bitcoinjslib.script.decompile(Buffer.from(redeemScript, 'hex'));
-        let p: Array<any> = new Array();
+        let redeemBuf: any = bitcoinjslib.script.decompile(Buffer.from(dataInputs.redeemScript, 'hex'));
+        let newPaths: Array<any> = new Array();
+        let newSignIndex: any = null;
         redeemBuf.forEach(item => {
+            let index = 0;
             if (util.isBuffer(item)) {
-                p.push(item.toString('hex'));
+                // p.push(item.toString('hex'));
+                if (dataInputs.paths[dataInputs.signIndex].addressPublicKey === item.toString('hex')) {
+                    newSignIndex = index;
+                }
+                dataInputs.paths.forEach(path => {
+                    if (path.addressPublicKey === item.toString('hex')) {
+                        newPaths.push(path)
+                    }
+                });
+                index++;
             }
         });
 
         // 对paths进行重新排序, 并拿到新的signIndex值
-        let newPaths: Array<any> = new Array();
-        let newSignIndex: any = null;
-        p.forEach((item, index) => {
-            if (paths[signIndex].addressPublicKey === item) {
-                newSignIndex = index;
-            }
-            paths.forEach(path => {
-                if (path.addressPublicKey === item) {
-                    newPaths.push(path)
-                }
-            })
-        });
-        return {
-            newPaths: newPaths,
-            newSignIndex: newSignIndex
-        }
+
+        // p.forEach((item, index) => {
+        //     if (dataInputs.paths[dataInputs.signIndex].addressPublicKey === item) {
+        //         newSignIndex = index;
+        //     }
+        //     dataInputs.paths.forEach(path => {
+        //         if (path.addressPublicKey === item) {
+        //             newPaths.push(path)
+        //         }
+        //     })
+        // });
+        dataInputs.paths = newPaths;
+        dataInputs.signIndex = newSignIndex;
+
+        return dataInputs;
+
     }
 
     /**
@@ -190,41 +187,57 @@ class TrezorLogic {
      * @param callback
      * @returns {Promise<void>}
      */
-    public async trezorSignTxForEth(ts, path, callback) {
+    public async trezorSignTxForEth(ts, path) {
         let signData = {
             path: path,
             transaction: ts
         };
-        debugger
-        //生成完整报文所需数据
-        let rawTx = ts;
-        let EIP155Supported = true;
-        let eTx = new Tx(rawTx);
-        eTx.raw[6] = Buffer.from([rawTx.chainId]);
-        eTx.raw[7] = eTx.raw[8] = 0;
-        let toHash = !EIP155Supported ? eTx.raw.slice(0, 6) : eTx.raw;
-        // let txToSign = ethUtil.rlp.encode(toHash);
-        trezor.ethereumSignTransaction(signData).then(function (result) {
-            if (result.success) {
-                rawTx.v = result.payload.v;
-                rawTx.r = result.payload.r;
-                rawTx.s = result.payload.s;
-                eTx = new Tx(rawTx);
-                rawTx.rawTx = JSON.stringify(rawTx);
-                rawTx.signedTx = '0x' + eTx.serialize().toString('hex');
-                rawTx.isError = false;
-                callback({
-                    success: result.success,
-                    v: result.payload.v,
-                    r: result.payload.r,
-                    s: result.payload.s
-                });
-            }
-            else {
-                callback(result)
-            }
-        });
+        let result:Result = {
+            success:false
+        };
+       let res:any = await trezor.ethereumSignTransaction(signData);
+        if (res.success) {
+            result = {
+                success: true,
+                v: res.payload.v,
+                r: res.payload.r,
+                s: res.payload.s
+            };
+        }
+        return result;
 
+    }
+    // BCH 地址格式转换
+    public bchAddressConvert (address:string, device_type:string){
+        if (bchaddrjs.isP2PKHAddress(address) || bchaddrjs.isP2SHAddress(address)) {
+            return device_type === 'ledger' ? bchaddrjs.toLegacyAddress(address) : bchaddrjs.toCashAddress(address);
+        } else {
+            return address;
+        }
+    }
+    // LTC P2SH地址格式转换
+    public ltcAddressConvert(address:string, device_type:string){
+        let decoded = bitcoinjslib.address.fromBase58Check(address);
+        let version = decoded['version'];
+        if (device_type === 'ledger' && version === 5){
+            return address
+        } else if (device_type === 'ledger' && version === 50){
+            return bitcoinjslib.address.toBase58Check(decoded['hash'], 5)
+        } else if (device_type === 'trezor' && version === 5){
+            return bitcoinjslib.address.toBase58Check(decoded['hash'], 50)
+        } else if (device_type === 'trezor' && version === 50){
+            return address
+        } else if (device_type === 'ledger' && version === 196){
+            return address
+        } else if (device_type === 'ledger' && version === 58){
+            return bitcoinjslib.address.toBase58Check(decoded['hash'], 196)
+        } else if (device_type === 'trezor' && version === 58){
+            return address
+        } else if (device_type === 'trezor' && version === 196){
+            return bitcoinjslib.address.toBase58Check(decoded['hash'], 58)
+        } else {
+            return address
+        }
     }
 
 
