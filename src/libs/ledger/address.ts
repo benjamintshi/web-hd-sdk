@@ -1,23 +1,20 @@
 import { LedgerTransport } from "./transport";
 import { Xpub } from './xpub';
 import { AddressParam } from "../model/hd";
-import { HDPublicKey } from "bitcore-lib";
-import * as bitCoreCash from 'bitcore-lib-cash';
-import { Utils } from "../common/utils";
 import * as BipPath from "bip32-path";
 import { CoinType } from "../model/utils";
+import { getHdPublicKeyFromLib } from '../common/networks';
 const HDKey = require("hdkey");
 const ethereumWallet = require('ethereumjs-wallet');
-const bitcoinjs = require('bitcoinjs-lib');
 class LedgerAddress {
     private xPub: Xpub;
     private derivation_path: string;
     private coin_type: string;
     private coin_num: string;
-    constructor(derivationPath: string, coinType: string) {
+    constructor(derivationPath: string, coinType: string, networkType: string) {
         this.coin_type = coinType;
         this.derivation_path = derivationPath;
-        this.xPub = new Xpub(derivationPath, coinType);
+        this.xPub = new Xpub(derivationPath, coinType, networkType);
         this.coin_num = (BipPath.fromString(this.derivation_path).toPathArray()[1] & ~0x80000000).toString();
     }
 
@@ -59,7 +56,7 @@ class LedgerAddress {
      * @param param 
      */
     public async getBtcSeriesAddress(param: AddressParam): Promise<any> {
-        const resp: any = this.getHdPublicKey(param);
+        const resp: any = await this.getHdPublicKey(param);
         const hdPubKey: any = resp.hdPubKey;
         const addressList: Array<any> = this.getAddressList(param, hdPubKey);
         return {
@@ -79,24 +76,7 @@ class LedgerAddress {
         } else {
             xpubStr = param.xPubStr ? param.xPubStr : "";
         }
-        let hdPubKey: any;
-        switch (this.coin_type) {
-            case CoinType.BTC:
-                hdPubKey = new HDPublicKey(xpubStr);
-                break;
-            case CoinType.BCH:
-                hdPubKey = new bitCoreCash.HDPublicKey(xpubStr);
-                break;
-            case CoinType.LTC:
-                const litecoin = Utils.getNetworkBySymbol(this.coin_num);
-                let litecoinX = Object.assign({}, litecoin, {
-                    bip32: litecoin.bitcoin.bip32
-                });
-                hdPubKey = bitcoinjs.HDNode.fromBase58(xpubStr, [litecoin, litecoinX]);
-                break;
-            default:
-                break;
-        }
+        let hdPubKey: any = getHdPublicKeyFromLib(this.coin_type, xpubStr);
         return {
             hdPubKey: hdPubKey,
             xpubStr: xpubStr,

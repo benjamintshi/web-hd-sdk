@@ -11,24 +11,24 @@ export class HdCore {
     private device_name: string;
     private ledger: LedgerControler;
     private trezor: TrezorControler;
-    constructor(deviceName: string, coinType: string, derivationPath: string) {
+    constructor(deviceName: string, coinType: string, derivationPath: string, networkType: string) {
         this.device_name = deviceName;
-        this.ledger = new LedgerControler(coinType, derivationPath);
+        this.ledger = new LedgerControler(coinType, derivationPath, networkType);
         this.trezor = new TrezorControler(coinType);
     }
-    public async signTransaction(entity: any,network): Promise<Result> {
+    public async signTransaction(entity: any, network): Promise<Result> {
         let signed: Result = {};
         switch (this.device_name) {
             case HDType.LEDGER:
                 signed = await this.ledger.signTransaction(entity);
                 break;
             case HDType.TREZOR:
-                signed = await this.trezor.signTransaction(entity,network);
+                signed = await this.trezor.signTransaction(entity, network);
                 break;
         }
         return signed;
     }
-    public async getWalletAddress(param:AddressParam): Promise<Result> {
+    public async getWalletAddress(param: AddressParam): Promise<Result> {
         let resp: Result = {};
         switch (this.device_name) {
             case HDType.LEDGER:

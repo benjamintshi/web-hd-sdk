@@ -18,7 +18,7 @@ interface Result extends EthResult, BtcResult {
 enum CoinType {
     BTC = 'btc',
     ETH = 'eth',
-    LTC = 'bch',
+    LTC = 'ltc',
     BCH = 'bch',
     BITCOIN = 'bitcoin'
 }
@@ -26,9 +26,13 @@ enum HDType {
     LEDGER = 'ledger',
     TREZOR = 'trezor'
 }
+enum NetWorkType {
+    mainnet = 'mainnet',
+    testnet = 'testnet'
+}
 
 interface SignatureResult extends EthResult, BtcResult {
-    signeds?:  Array<Signature>;
+    signeds?: Array<Signature>;
     success?: boolean;
     message?: string;
 }
@@ -37,5 +41,6 @@ export {
     CoinType,
     HDType,
     Signature,
-    SignatureResult
+    SignatureResult,
+    NetWorkType
 }

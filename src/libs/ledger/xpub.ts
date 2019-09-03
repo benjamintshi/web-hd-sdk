@@ -1,19 +1,18 @@
 import { WalletHd, WalletPublicKey, XPubEntity } from '../model/hd';
 import { crypto } from 'bitcore-lib';
-import { encode } from 'bs58'
 import * as BipPath from "bip32-path";
 import { Utils } from '../common/utils';
 import { LedgerTransport } from './transport';
-import { padStart } from 'lodash';
-
+import { getNetworksFromLib, getHdPublicKeyObjFromLib } from '../common/networks';
 class Xpub {
     private derivation_path: string;// = "44'/0'/0'";
     private coin_type: string;
     private coin_num: string;
-
-    constructor(derivationPath: string, coinType: string) {
+    private network_type: string;
+    constructor(derivationPath: string, coinType: string, netWorkType: string) {
         this.derivation_path = derivationPath;
         this.coin_type = coinType;
+        this.network_type = netWorkType;
         this.coin_num = (BipPath.fromString(this.derivation_path).toPathArray()[1] & ~0x80000000).toString();
     }
 
@@ -42,46 +41,23 @@ class Xpub {
         return resp;
     }
 
-
     private async initialize(hd: WalletHd): Promise<string> {
-        const network: any = Utils.getNetworkBySymbol(this.coin_num).bitcoinjs;
+        const network: any = getNetworksFromLib(this.coin_type, this.network_type);
         let parentPublicKey: string = hd.parentPublicKey;
         let hexPubKey: Array<any> = Utils.parseHexString(parentPublicKey);
         let bufPublicKey: Buffer = crypto.Hash.sha256(Buffer.from(hexPubKey));
         bufPublicKey = crypto.Hash.ripemd160(bufPublicKey);
         let fingerPrint = ((bufPublicKey[0] << 24) | (bufPublicKey[1] << 16) | (bufPublicKey[2] << 8) | bufPublicKey[3]) >>> 0;
-        let childNum: number = (0x80000000 | 0) >>> 0;
-        let xpubStr: string = this.createXpub(
-            {
-                depth: 3,
-                fingerPrint: fingerPrint,
-                childNum: childNum,
-                chainCode: hd.chainCode,
-                publicKey: hd.publicKey,
-                network: network.bip32.public //todo ltc need update.
-            }
-        );
-        return this.encodeBase58Check(xpubStr);
-    }
-
-    private createXpub(entity: XPubEntity): string {
-        return [
-            Utils.toHexInt(entity.network),
-            padStart(entity.depth.toString(16), 2, '0'),
-            padStart(entity.fingerPrint.toString(16), 8, '0'),
-            padStart(entity.childNum.toString(16), 8, '0'),
-            entity.chainCode,
-            entity.publicKey,
-        ].join('');
-    }
-
-    private encodeBase58Check(xpubStr: string): string {
-        let strVal: Array<any> = Utils.parseHexString(xpubStr);
-        let chkSum: Buffer = crypto.Hash.sha256(Buffer.from(strVal));
-        chkSum = crypto.Hash.sha256(chkSum);
-        chkSum = chkSum.slice(0, 4);
-        let hash: Array<any> = strVal.concat(Array.from(chkSum));
-        return encode(Buffer.from(hash));
+        let childNum: number = (0x80000000 | 0) >>> 0; //0 为账户0
+        let derived: any = getHdPublicKeyObjFromLib(this.coin_type, {
+            network: network,
+            depth: 3,
+            parentFingerPrint: fingerPrint,
+            childIndex: childNum,
+            chainCode: hd.chainCode,
+            publicKey: hd.publicKey
+        });
+        return derived.toString();
     }
 }
 
