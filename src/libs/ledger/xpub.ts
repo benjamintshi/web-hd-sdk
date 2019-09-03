@@ -1,4 +1,4 @@
-import { WalletHd, WalletPublicKey, XPubEntity } from '../model/hd';
+import { WalletHd, WalletPublicKey } from '../model/hd';
 import { crypto } from 'bitcore-lib';
 import * as BipPath from "bip32-path";
 import { Utils } from '../common/utils';
@@ -42,7 +42,7 @@ class Xpub {
     }
 
     private async initialize(hd: WalletHd): Promise<string> {
-        const network: any = getNetworksFromLib(this.coin_type, this.network_type);
+        let network: any = getNetworksFromLib(this.coin_type, this.network_type);
         let parentPublicKey: string = hd.parentPublicKey;
         let hexPubKey: Array<any> = Utils.parseHexString(parentPublicKey);
         let bufPublicKey: Buffer = crypto.Hash.sha256(Buffer.from(hexPubKey));

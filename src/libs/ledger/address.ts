@@ -2,7 +2,6 @@ import { LedgerTransport } from "./transport";
 import { Xpub } from './xpub';
 import { AddressParam } from "../model/hd";
 import * as BipPath from "bip32-path";
-import { CoinType } from "../model/utils";
 import { getHdPublicKeyFromLib } from '../common/networks';
 const HDKey = require("hdkey");
 const ethereumWallet = require('ethereumjs-wallet');

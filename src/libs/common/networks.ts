@@ -1,5 +1,5 @@
 import { Networks as BtcNetworks, HDPublicKey as BtcHDPublicKey } from "bitcore-lib";
-import { Networks as LiteNetworks, HDPublicKey as LiteHDPublicKey } from 'litecore-lib';
+import { Networks as LiteNetworks, HDPublicKey as LiteHDPublicKey } from 'litecore-lib-st';
 import { Networks as CashNetworks, HDPublicKey as CashHDPublicKey } from 'bitcore-lib-cash';
 import { CoinType } from "../model/utils";
 
