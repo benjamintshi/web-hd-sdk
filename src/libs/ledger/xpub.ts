@@ -18,7 +18,7 @@ class Xpub {
 
     public async getXpub(segwit: boolean): Promise<any> {
         let hd: WalletHd = await this.getWalletPublicKey();
-        let xpubStr: string = await this.initialize(hd);
+        let xpubStr: string = await this.buildXpub(hd);
         return {
             chainCode: hd.chainCode,
             publicKey: hd.publicKey,
@@ -41,7 +41,7 @@ class Xpub {
         return resp;
     }
 
-    private async initialize(hd: WalletHd): Promise<string> {
+    private async buildXpub(hd: WalletHd): Promise<string> {
         let network: any = getNetworksFromLib(this.coin_type, this.network_type);
         let parentPublicKey: string = hd.parentPublicKey;
         let hexPubKey: Array<any> = Utils.parseHexString(parentPublicKey);

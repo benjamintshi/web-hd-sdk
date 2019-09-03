@@ -4,20 +4,20 @@ import { Networks as CashNetworks, HDPublicKey as CashHDPublicKey } from 'bitcor
 import { CoinType } from "../model/utils";
 
 /**
- * 
+ * 根据币种返回对应networks
  * @param coinType 币种类型
  * @param netEnv 币种环境：mainnet ,testnet
  */
-function getNetworksFromLib(coinType: string, netEnv: string): any {
+function getNetworksFromLib(coinType: string, networkType: string): any {
     switch (coinType) {
         case CoinType.BTC:
-            return BtcNetworks[netEnv];
+            return BtcNetworks[networkType];
         case CoinType.BCH:
-            return CashNetworks[netEnv];
+            return CashNetworks[networkType];
         case CoinType.LTC:
-            return LiteNetworks[netEnv];
+            return LiteNetworks[networkType];
         default:
-            return BtcNetworks[netEnv];
+            return BtcNetworks[networkType];
     }
 }
 /**
@@ -26,16 +26,7 @@ function getNetworksFromLib(coinType: string, netEnv: string): any {
  * @param xpubStr  xpub
  */
 function getHdPublicKeyFromLib(coinType: string, xpubStr: string): any {
-    switch (coinType) {
-        case CoinType.BTC:
-            return new BtcHDPublicKey(xpubStr);
-        case CoinType.BCH:
-            return new CashHDPublicKey(xpubStr);
-        case CoinType.LTC:
-            return new LiteHDPublicKey(xpubStr);
-        default:
-            return new BtcHDPublicKey(xpubStr);
-    }
+    return getHdPublicKey(coinType, xpubStr, undefined);
 }
 
 /**
@@ -44,15 +35,25 @@ function getHdPublicKeyFromLib(coinType: string, xpubStr: string): any {
  * @param xpubStr  xpub
  */
 function getHdPublicKeyObjFromLib(coinType: string, opts: Object): any {
+    return getHdPublicKey(coinType, undefined, opts);
+}
+/**
+ * 返回lib对象
+ * @param coinType 
+ * @param xpubStr 
+ * @param opts 
+ */
+function getHdPublicKey(coinType: string, xpubStr?: string, opts?: Object) {
+    let tmpParam: any = xpubStr ? xpubStr : opts;
     switch (coinType) {
         case CoinType.BTC:
-            return new BtcHDPublicKey(opts);
+            return new BtcHDPublicKey(tmpParam);
         case CoinType.BCH:
-            return new CashHDPublicKey(opts);
+            return new CashHDPublicKey(tmpParam);
         case CoinType.LTC:
-            return new LiteHDPublicKey(opts);
+            return new LiteHDPublicKey(tmpParam);
         default:
-            return new BtcHDPublicKey(opts);
+            return new BtcHDPublicKey(tmpParam);
     }
 }
 
