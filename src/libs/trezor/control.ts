@@ -19,9 +19,9 @@ class TrezorControler {
             case CoinType.BTC:
                 return await this.transaction.BtcSign(data);
             case CoinType.BCH:
-                return await this.transaction.BchSign(data);
+                return await this.transaction.BtcSeriesSign(data,this.coin_type);
             case CoinType.LTC:
-                return await this.transaction.LtcSign(data);
+                return await this.transaction.BtcSeriesSign(data,this.coin_type);
         }
     }
 

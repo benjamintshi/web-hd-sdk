@@ -56,8 +56,21 @@ interface Utxo {
     coinNum: number;
 }
 
-interface signTransactionRes{
+enum SEND_ENUM  {
+    /* 输出类型 */
 
+    p2pkh= "SPENDADDRESS",
+    multi= "SPENDMULTISIG",
+    segwitP2wpkh= "SPENDWITNESS",
+    multiP2wsh= "SPENDWITNESS",
+    segwitP2sh= "SPENDP2SHWITNESS"
+
+}
+/* 支付类型 */
+enum PAY_ENUM {
+    p2pkh = "PAYTOADDRESS",
+    p2sh = "PAYTOP2SHWITNESS",
+    op_return_type = "PAYTOOPRETURN"
 }
 export {
     BtcSeriesEntity,
@@ -65,5 +78,7 @@ export {
     Utxo,
     OutPuts,
     OutPut,
-    BtcSeriesData
+    BtcSeriesData,
+    SEND_ENUM,
+    PAY_ENUM
 }

@@ -24,10 +24,22 @@ interface EthInput {
     address: string;
     path: string;
 }
+interface trezorBtcEntityResult {
+    multisig:boolean,
+    outputs:any,
+    inputs:any
+}
+
+interface  dealWithInputsResult{
+    newPaths: any,
+    newSignIndex: any
+}
 interface SignatureResult{
 
 }
 export {
     EthEntity,
-    EthData
+    EthData,
+    trezorBtcEntityResult,
+    dealWithInputsResult
 }
