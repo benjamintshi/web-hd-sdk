@@ -1,5 +1,5 @@
 ### web-hd-sdk
-> web-hd-sdk 主要集成了ledger和trezor两个硬件在web项目中签名，目前支持btc、eth、bch:adc、ltc （持续更新.）。
+> web-hd-sdk Mainly integrates ledger and trezor hardware to sign in web project, currently supports btc,eth,bch:adc,ltc （Continuous update.）。
 
 #### Installing
 For the latest stable version:
@@ -7,8 +7,8 @@ For the latest stable version:
 npm install web-hd-sdk
 
 ```
-#### 使用说明
-### 一、ETH-签名
+#### direction for use
+### 一、ETH- signature
 ```
 import {HdCore} from 'web-hd-sdk';
 const source_data = {
@@ -23,7 +23,8 @@ const source_data = {
   "toAddress": "0x87da9eceb42a8a0c23e6058447ff301da5f5f8a9",
   "txnCoinNum": 1.2
 };
-const hd = new HdCore('ledger', 'eth');
+const hd = new HdCore('ledger', 'eth','testnet');//ledger need network
+new HdCore(this.entity.deviceName, this.entity.coinType , this.entity.network, this.entity.path);
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -31,7 +32,7 @@ try {
     console.log(e.message);
 }
 ```
-####返回结果
+#### Return results
 
 ```
 res = {
@@ -42,7 +43,7 @@ res = {
     s: "",
 };
 ```
-### 二、BTC、BCH、LTC -签名
+### 二、BTC、BCH、LTC - signature
 ```
 import {HdCore} from 'web-hd-sdk';
 const source_data = {
@@ -90,7 +91,7 @@ const source_data = {
     }
   ]
 };
-const hd = new HdCore('ledger', 'btc');
+const hd = new HdCore('ledger', 'btc','testnet');//ledger need network
 try {
     const res = await hd.signTransaction(data);
     console.log(res)
@@ -98,7 +99,7 @@ try {
     console.log(e.message);
 }
 ```
-####返回结果
+#### Return results
 
 ```
 res = {
@@ -109,11 +110,11 @@ res = {
 };
 ```
 
-### 三、BTC、BCH、LTC、ETH-地址导出
+### 三、BTC、BCH、LTC、ETH - Address export
 ```
 import {HdCore} from 'web-hd-sdk';
-let derivationPath = this.entity.coinName === 'eth' ? "44'/60'/0'" : "44'/1'/0'"
-const hd = new HdCore('ledger', 'btc', derivationPath);
+//let derivationPath = 'eth' --- "44'/60'/0'"  btc_testnet: "44'/1'/0'"
+const hd = new HdCore('ledger', 'btc','testnet',derivationPath);//ledger need network
 const res = await hd.getWalletAddress({
     isHd: true,
     segwit: false,
@@ -122,7 +123,7 @@ const res = await hd.getWalletAddress({
 });
 console.log(res)
 ```
-####返回结果
+#### Return results
 
 ```
 res = {
