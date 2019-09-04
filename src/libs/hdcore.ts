@@ -14,7 +14,7 @@ export class HdCore {
     constructor(deviceName: string, coinType: string, networkType: string, derivationPath: string, ) {
         this.device_name = deviceName;
         this.ledger = new LedgerControler(coinType, derivationPath, networkType);
-        this.trezor = new TrezorControler(coinType, networkType, this.device_name);
+        this.trezor = new TrezorControler(coinType, networkType, deviceName);
     }
     public async signTransaction(entity: any): Promise<Result> {
         try {

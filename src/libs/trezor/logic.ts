@@ -1,18 +1,41 @@
 import { toHex, numberToHex } from 'web3-utils';
 import { convert } from 'ethereumjs-units';
 import { EthEntity, dealWithInputsResult, trezorBtcEntityResult } from "../model/eth";
+import * as BipPath from "bip32-path";
+import { CoinType, HDType } from '../model/utils';
+import { Tools } from '../common/tools';
 import { SEND_ENUM, PAY_ENUM } from "../model/btc";
 const bitcoinjslib = require("bitcoinjs-lib");
 const bitcore = require("bitcore-lib");
 const util = require("util");
-import * as BipPath from "bip32-path";
 
 class TrezorLogic {
     private coin_type: string;
     constructor(coinType: string) {
         this.coin_type = coinType;
     }
+
+    public async getTrezorEntity(data: any): Promise<any> {
+        switch (this.coin_type) {
+            case CoinType.ETH:
+                return await this.getEthTrezorEntity(data);
+            case CoinType.BTC:
+                return await this.getBtcTrezorEntity(data);
+            default:
+                return await this.getBtcTrezorEntity(data);
+        }
+    }
+
     public async getBtcTrezorEntity(data: any): Promise<trezorBtcEntityResult> {
+        if (this.coin_type === CoinType.LTC || this.coin_type === CoinType.BCH) {
+            data.input.address = Tools.getCoinAddress(data.input.address, this.coin_type, HDType.TREZOR);
+            data.outputs.forEach((item: any) => {
+                item.address = Tools.getCoinAddress(item.address, this.coin_type, HDType.TREZOR);
+            });
+            if (data.input.paths.length > 1) {
+                data.input = this.dealWithInputs(data.input);
+            }
+        }
         return {
             inputs: await this.getTrezorInputs(data),
             outputs: await this.getTrezorOutputs(data.outputs),
@@ -30,7 +53,7 @@ class TrezorLogic {
      @param      redeemScript  赎回脚本
      @return      返回trezor可用的inputs
      **/
-    public async getTrezorInputs(data: any): Promise<any> {
+    private async getTrezorInputs(data: any): Promise<any> {
         let inputs: Array<any> = [], input: any = {};
         let dataInput: any = data.input;
         data.utxos.forEach(utxo => {
@@ -94,7 +117,7 @@ class TrezorLogic {
      * 处理BCH、LTC中paths顺序以及signIndex字段
      * @param dataInputs 
      */
-    public dealWithInputs(dataInputs): dealWithInputsResult {
+    private dealWithInputs(dataInputs): dealWithInputsResult {
         // decode redeemScript, 取其中的publicKey
         let redeemBuf: any = bitcoinjslib.script.decompile(Buffer.from(dataInputs.redeemScript, 'hex'));
         let newPaths: Array<any> = new Array();
@@ -124,8 +147,8 @@ class TrezorLogic {
      * @param data      服务返回签名所需要的数据
      * @returns transaction  返回交易对象
      */
-    public getTransactionDataForEth(data): EthEntity {
-        let signEthereumData: EthEntity = {
+    private getEthTrezorEntity(data): any {
+        let entity: EthEntity = {
             // path: data.input.path,
             nonce: numberToHex(data.nonce),
             gasPrice: numberToHex(data.gasPrice),
@@ -135,7 +158,10 @@ class TrezorLogic {
             data: data.data == null ? '' : toHex(data.data),
             chainId: Number(data.chainId)
         }
-        return signEthereumData;
+        return {
+            path: data.input.path,
+            entity: entity
+        };
     }
 }
 

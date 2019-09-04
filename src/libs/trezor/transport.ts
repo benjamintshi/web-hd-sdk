@@ -1,13 +1,15 @@
-const trezor = require('trezor-connect');
+import TrezorConnect from 'trezor-connect';
+
+
 /**
  ExTrezorManager 扩展对象
  钱包:Ledger
  */
-trezor.manifest({
+TrezorConnect.manifest({
     email: 'xiongjie@invault.io',
     appUrl: 'https://localhost'
 });
 
 export {
-    trezor
+    TrezorConnect
 };

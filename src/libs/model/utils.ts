@@ -20,6 +20,10 @@ enum CoinType {
     ETH = 'eth',
     LTC = 'ltc',
     BCH = 'bch',
+    /**
+     * trezor btc testnet = testnet
+     */
+    TESTNET = 'testnet',
     BITCOIN = 'bitcoin'
 }
 enum HDType {
