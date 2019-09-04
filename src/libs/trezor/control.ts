@@ -1,6 +1,6 @@
 import { TrezorLogic } from "./logic";
 import { TrezorTransaction } from "./transaction"
-import { CoinType, Result } from "../model/utils"
+import { CoinType } from "../model/utils"
 
 class TrezorControler {
     private transaction: TrezorTransaction;
@@ -22,7 +22,6 @@ class TrezorControler {
                 return await this.transaction.BtcSeriesSign(data);
         }
     }
-
 }
 
 export {

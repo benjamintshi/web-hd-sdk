@@ -1,9 +1,8 @@
-import trezor from "trezor-connect";
 import { SignatureResult, Result } from "../model/utils";
 import { TrezorLogic } from "./logic";
 import { Tools } from "../common/tools";
 import { getSignature, getMutiSignSignature } from "../common/signature";
-
+import { trezor } from './transport';
 
 class TrezorTransaction {
     private logic: TrezorLogic;
@@ -24,9 +23,25 @@ class TrezorTransaction {
      */
     public async EthSign(data: any): Promise<Result> {
         let transData = this.logic.getTransactionDataForEth(data);
-        return await this.logic.trezorSignTxForEth(transData, data.input.path);
-
+        let signData = {
+            path: data.input.path,
+            transaction: transData
+        };
+        let result: Result = {
+            success: false
+        };
+        let res: any = await trezor.ethereumSignTransaction(signData);
+        if (res.success) {
+            result = {
+                success: true,
+                v: res.payload.v,
+                r: res.payload.r,
+                s: res.payload.s
+            };
+        }
+        return result;
     }
+
     /**
      * btc sign
      * @param data 
@@ -64,7 +79,6 @@ class TrezorTransaction {
         }
         return this.BtcSign(data);
     }
-
 }
 
 export {
