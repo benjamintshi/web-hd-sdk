@@ -25,11 +25,14 @@ class LedgerLogic {
                 return await this.getEthLedgerEntity(data);
             case CoinType.BTC:
                 return await this.getBtcLedgerEntity(data);
+            default:
+                return await this.getBtcLedgerEntity(data);
         }
     }
 
     private async getBtcLedgerEntity(data: BtcSeriesData): Promise<BtcSeriesEntity> {
         let entity: BtcSeriesEntity = {
+            isMutiSign: data.input.paths.length > 1,
             inputs: await this.getLedgerInputs(data),
             outputScript: await this.getLedgerOutputScript(data.outputs),
             segwit: false,
@@ -54,7 +57,7 @@ class LedgerLogic {
     private async getLedgerInputs(data: BtcSeriesData): Promise<any> {
         //格式化地址
         data.input.address = Tools.getCoinAddress(data.input.address, this.coin_type);
-        let inputs: any = await this.getTxInputs(data.utxos);
+        let inputs: any = await this.getTxInputsByUtxo(data.utxos);
         if (data.input.paths.length > 1) {
             inputs.forEach(element => {
                 element.push(data.input.redeemScript);
@@ -63,7 +66,7 @@ class LedgerLogic {
         return inputs;
     }
 
-    private async getTxInputs(listUtxo: Array<Utxo>): Promise<any> {
+    private async getTxInputsByUtxo(listUtxo: Array<Utxo>): Promise<any> {
         const transport: any = await this.transport.getTransport();
         let ids: Array<string> = new Array<string>();
         let splitTxs: Array<any> = new Array<any>();

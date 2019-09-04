@@ -11,34 +11,49 @@ export class HdCore {
     private device_name: string;
     private ledger: LedgerControler;
     private trezor: TrezorControler;
-    constructor(deviceName: string, coinType: string, networkType: string,derivationPath: string,) {
+    constructor(deviceName: string, coinType: string, networkType: string, derivationPath: string, ) {
         this.device_name = deviceName;
         this.ledger = new LedgerControler(coinType, derivationPath, networkType);
-        this.trezor = new TrezorControler(coinType,networkType,this.device_name);
+        this.trezor = new TrezorControler(coinType, networkType, this.device_name);
     }
     public async signTransaction(entity: any): Promise<Result> {
-        let signed: Result = {};
-        switch (this.device_name) {
-            case HDType.LEDGER:
-                signed = await this.ledger.signTransaction(entity);
-                break;
-            case HDType.TREZOR:
-                signed = await this.trezor.signTransaction(entity);
-                break;
+        try {
+            let signed: Result = {};
+            switch (this.device_name) {
+                case HDType.LEDGER:
+                    signed = await this.ledger.signTransaction(entity);
+                    break;
+                case HDType.TREZOR:
+                    signed = await this.trezor.signTransaction(entity);
+                    break;
+            }
+            return signed;
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message
+            }
         }
-        return signed;
+
     }
     public async getWalletAddress(param: AddressParam): Promise<Result> {
-        let resp: Result = {};
-        switch (this.device_name) {
-            case HDType.LEDGER:
-                resp = await this.ledger.getCoinAddressList(param);
-                break;
-            case HDType.TREZOR:
+        try {
+            let resp: Result = {};
+            switch (this.device_name) {
+                case HDType.LEDGER:
+                    resp = await this.ledger.getCoinAddressList(param);
+                    break;
+                case HDType.TREZOR:
 
-                break;
+                    break;
+            }
+            return resp;
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message
+            }
         }
-        return resp;
     }
 }
 

@@ -1,21 +1,23 @@
 import { rlp } from "ethereumjs-util";
-import {Result, Signature, SignatureResult} from '../model/utils';
-import { BtcSeriesEntity } from '../model/btc';
+import { Result } from '../model/utils';
+import { BtcSeriesEntity, Utxos } from '../model/btc';
 import { EthEntity } from '../model/eth';
 import { LedgerTransport } from "./transport";
-import { TransactionModel } from "../common/transaction"
-const Bitcore = require('bitcore-lib');
+import { getSignature, getMutiSignSignature } from "../common/signature";
 const Tx = require('ethereumjs-tx');
-
 class LedgerTransaction {
     private transport: any;
     private coin_type: string;
-    private tranactionModel:TransactionModel;
+    private version: number = 1;
     constructor(coinType: string) {
         this.coin_type = coinType;
-        this.tranactionModel = new TransactionModel(false);
     }
 
+    /**
+     * eth sign
+     * @param path 
+     * @param entity 
+     */
     public async signEth(path: string, entity: EthEntity): Promise<Result> {
         let res: Result = {};
         let signed: any;
@@ -36,12 +38,13 @@ class LedgerTransaction {
     /**
      * support btc series coin sign,include btc,bch,ltc.
      * @param {BtcEntity} entity
+     * @param {utxos} utxos
      * @returns {Promise<Result>}
      */
-    public async signBtcSeries(entity: BtcSeriesEntity): Promise<Result> {
+    public async signBtcSeries(entity: BtcSeriesEntity, utxos: Utxos): Promise<Result> {
         let signed: any;
         this.transport = await new LedgerTransport(this.coin_type).getTransport();
-        if (entity.paths.length === 1) {
+        if (!entity.isMutiSign) {
             signed = await this.transport.createPaymentTransactionNew(
                 entity.inputs,
                 entity.paths,
@@ -56,32 +59,15 @@ class LedgerTransaction {
         } else {
             signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
         }
+        debugger
         let res: Result = {
             success: true,
             message: "",
-            signatures: await this.tranactionModel.getSignature(signed),
-            version: this.tranactionModel.getVersion(signed)
+            signatures: entity.isMutiSign ? getMutiSignSignature(signed, utxos) : getSignature(signed, false),
+            version: this.version
         };
         return res;
     }
-
-    // private async getSignature(signMsg: any): Promise<Array<Signature>> {
-    //     const tx = new Bitcore.Transaction(signMsg);
-    //     const signatures: Array<Signature> = new Array<Signature>();
-    //     tx.inputs.forEach((vin) => {
-    //         let sign: string = vin.script.chunks[0].buf.toString('hex');
-    //         signatures.push({
-    //             txid: vin.prevTxId.toString('hex'),
-    //             sign: sign
-    //         });
-    //     })
-    //     return signatures;
-    // }
-    //
-    // private getVersion(signMsg: string): (number) {
-    //     const tx = new Bitcore.Transaction(signMsg);
-    //     return tx.version;
-    // }
 }
 
 export {

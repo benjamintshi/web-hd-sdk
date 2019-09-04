@@ -2,6 +2,7 @@ interface BtcSeriesEntity {
     inputs: Array<any>;
     paths: Array<string>;
     outputScript: string;
+    isMutiSign: boolean;
     segwit: boolean;
     /**
      * @param additionals list of additionnal options
@@ -12,11 +13,11 @@ interface BtcSeriesEntity {
      * - "bipxxx" for using BIPxxx
      * - "sapling" to indicate a zec transaction is supporting sapling (to be set over block 419200)
      */
-    additionals?:string;
+    additionals?: string;
     /**
      * sigHashType is the hash type of the transaction to sign, or default (all)
      */
-    sigHashType?:string;
+    sigHashType?: string;
 }
 interface BtcSeriesData {
     input: Input;
@@ -56,14 +57,13 @@ interface Utxo {
     coinNum: number;
 }
 
-enum SEND_ENUM  {
+enum SEND_ENUM {
     /* 输出类型 */
-
-    p2pkh= "SPENDADDRESS",
-    multi= "SPENDMULTISIG",
-    segwitP2wpkh= "SPENDWITNESS",
-    multiP2wsh= "SPENDWITNESS",
-    segwitP2sh= "SPENDP2SHWITNESS"
+    p2pkh = "SPENDADDRESS",
+    multi = "SPENDMULTISIG",
+    segwitP2wpkh = "SPENDWITNESS",
+    multiP2wsh = "SPENDWITNESS",
+    segwitP2sh = "SPENDP2SHWITNESS"
 
 }
 /* 支付类型 */
