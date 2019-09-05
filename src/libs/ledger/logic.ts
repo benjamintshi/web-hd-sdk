@@ -7,7 +7,7 @@ import { EthEntity, EthData } from '../model/eth';
 import { toHex, numberToHex } from 'web3-utils';
 import { convert } from 'ethereumjs-units';
 import { CoinType } from '../model/utils';
-import { Tools } from '../common/tools';
+import { getCoinAddress } from '../common/convert';
 const axios = require('axios');
 
 class LedgerLogic {
@@ -56,7 +56,7 @@ class LedgerLogic {
 
     private async getLedgerInputs(data: BtcSeriesData): Promise<any> {
         //格式化地址
-        data.input.address = Tools.getCoinAddress(data.input.address, this.coin_type);
+        data.input.address = getCoinAddress(data.input.address, this.coin_type);
         let inputs: any = await this.getTxInputsByUtxo(data.utxos);
         if (data.input.paths.length > 1) {
             inputs.forEach(element => {
@@ -74,7 +74,11 @@ class LedgerLogic {
         listUtxo.forEach((element) => {
             ids.push(element.txid);
         });
+        //todo
+        //url增加bitcore查询交易报文.
         let url = "https://api.ledgerwallet.com/blockchain/v2/btc_testnet/transactions/" + ids.join(',') + "/hex";
+        //ltc:https://chain.so/api/v2/get_tx/LTC/" + utxos[i].txid)
+        //bch:"https://api.ledgerwallet.com/blockchain/v2/abc/transactions/" + utxos[i].txid + "/hex";
         const res = await axios.get(url);
         const data = res.data;
         for (let i = 0; i < data.length; i++) {
@@ -83,6 +87,7 @@ class LedgerLogic {
             splitTxs.push(splitTx);
             indexs.push(listUtxo[i].index);
         }
+        debugger
         return zip(splitTxs, indexs);
     }
 
@@ -90,7 +95,7 @@ class LedgerLogic {
         let tmp: Array<any> = new Array<any>();
         listOutput.forEach(element => {
             tmp.push({
-                address: Tools.getCoinAddress(element.address, this.coin_type),
+                address: getCoinAddress(element.address, this.coin_type),
                 value: Unit.fromBTC(element.coinNum).toSatoshis()
             });
         });
