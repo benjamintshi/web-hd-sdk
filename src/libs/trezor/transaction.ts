@@ -1,18 +1,12 @@
 import { SignatureResult, Result } from "../model/utils";
-import { TrezorLogic } from "./logic";
-import { Tools } from "../common/tools";
 import { getSignature, getMutiSignSignature } from "../common/signature";
 import { TrezorConnect } from './transport';
 import { Utxos } from "../model/btc";
 
 class TrezorTransaction {
-    private logic: TrezorLogic;
-    private device_name: string;
     private coin_type: string;
     private version: number = 1;
-    constructor(coinType: string, device_name: string) {
-        this.logic = new TrezorLogic(coinType);
-        this.device_name = device_name;
+    constructor(coinType: string) {
         this.coin_type = coinType;
     }
 

@@ -11,10 +11,17 @@ export class HdCore {
     private device_name: string;
     private ledger: LedgerControler;
     private trezor: TrezorControler;
-    constructor(deviceName: string, coinType: string, networkType: string, derivationPath: string, ) {
+    /**
+     * 硬件sdk构造函数
+     * @param deviceName  硬件类型：ledger、trezor
+     * @param coinType    币种类型：btc、ltc、bch、eth
+     * @param networkType 节点环境：testnet、mainnet
+     * @param derivationPath 路径：path
+     */
+    constructor(deviceName: string, coinType: string, networkType: string, derivationPath: string) {
         this.device_name = deviceName;
         this.ledger = new LedgerControler(coinType, derivationPath, networkType);
-        this.trezor = new TrezorControler(coinType, networkType, deviceName);
+        this.trezor = new TrezorControler(coinType, derivationPath, networkType);
     }
     public async signTransaction(entity: any): Promise<Result> {
         try {
@@ -44,7 +51,7 @@ export class HdCore {
                     resp = await this.ledger.getCoinAddressList(param);
                     break;
                 case HDType.TREZOR:
-
+                    resp = await this.trezor.getCoinAddressList(param);
                     break;
             }
             return resp;

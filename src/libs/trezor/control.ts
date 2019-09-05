@@ -1,14 +1,20 @@
 import { TrezorLogic } from "./logic";
 import { TrezorTransaction } from "./transaction"
 import { CoinType } from "../model/utils"
-
+import { TrezorAddress } from './address';
+import { AddressParam } from '../model/hd';
 class TrezorControler {
     private transaction: TrezorTransaction;
     private coin_type: string;
     private logic?: TrezorLogic;
-    constructor(coinType: string, networkType: string, device_name: string) {
-        this.transaction = new TrezorTransaction(coinType, device_name);
+    private derivation_path: string;
+    private address?: TrezorAddress;
+    private network_type: string;
+    constructor(coinType: string, derivationPath: string, networkType: string) {
+        this.transaction = new TrezorTransaction(coinType);
         this.coin_type = coinType;
+        this.derivation_path = derivationPath;
+        this.network_type = networkType;
     }
 
     public async signTransaction(data: any): Promise<any> {
@@ -18,12 +24,23 @@ class TrezorControler {
             case CoinType.ETH:
                 return await this.transaction.EthSign(entity);
             case CoinType.BTC:
-            case CoinType.TESTNET:
             case CoinType.BCH:
             case CoinType.LTC:
                 return await this.transaction.BtcSeriesSign(entity, data.utxos);
             default:
                 return await this.transaction.BtcSeriesSign(entity, data.utxos);
+        }
+    }
+    public async getCoinAddressList(param: AddressParam): Promise<any> {
+        debugger
+        this.address = new TrezorAddress(this.derivation_path, this.coin_type, this.network_type);
+        switch (this.coin_type) {
+            case CoinType.ETH:
+                return await this.address.getEthAddress(param);
+            case CoinType.BTC:
+            case CoinType.BCH:
+            case CoinType.LTC:
+                return await this.address.getBtcSeriesAddress(param);
         }
     }
 }
