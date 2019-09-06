@@ -26,7 +26,7 @@ function getNetworksFromLib(coinType: string, networkType: string): any {
  * @param xpubStr  xpub
  */
 function getHdPublicKeyFromLib(coinType: string, xpubStr: string): any {
-    return getHdPublicKey(coinType, xpubStr, undefined);
+    return getCoinHDPublicKey(coinType, xpubStr, undefined);
 }
 
 /**
@@ -35,7 +35,7 @@ function getHdPublicKeyFromLib(coinType: string, xpubStr: string): any {
  * @param xpubStr  xpub
  */
 function getHdPublicKeyObjFromLib(coinType: string, opts: Object): any {
-    return getHdPublicKey(coinType, undefined, opts);
+    return getCoinHDPublicKey(coinType, undefined, opts);
 }
 /**
  * 返回lib对象
@@ -43,7 +43,7 @@ function getHdPublicKeyObjFromLib(coinType: string, opts: Object): any {
  * @param xpubStr 
  * @param opts 
  */
-function getHdPublicKey(coinType: string, xpubStr?: string, opts?: Object) {
+function getCoinHDPublicKey(coinType: string, xpubStr?: string, opts?: Object) {
     let tmpParam: any = xpubStr ? xpubStr : opts;
     switch (coinType) {
         case CoinType.BTC:

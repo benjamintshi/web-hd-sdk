@@ -22,7 +22,6 @@ class Xpub {
         return {
             chainCode: hd.chainCode,
             publicKey: hd.publicKey,
-            parentPublicKey: hd.parentPublicKey,
             xpubStr: xpubStr
         };
     }

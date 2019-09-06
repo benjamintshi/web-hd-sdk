@@ -58,6 +58,7 @@ class LedgerLogic {
         //格式化地址
         data.input.address = getCoinAddress(data.input.address, this.coin_type);
         let inputs: any = await this.getTxInputsByUtxo(data.utxos);
+        //多签：需要赎回脚本
         if (data.input.paths.length > 1) {
             inputs.forEach(element => {
                 element.push(data.input.redeemScript);

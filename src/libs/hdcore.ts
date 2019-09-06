@@ -8,25 +8,25 @@ import { TrezorControler } from './trezor/index';
 import { AddressParam } from './model/hd';
 
 export class HdCore {
-    private device_name: string;
+    private device_type: string;
     private ledger: LedgerControler;
     private trezor: TrezorControler;
     /**
      * 硬件sdk构造函数
-     * @param deviceName  硬件类型：ledger、trezor
+     * @param device_type  硬件类型：ledger、trezor
      * @param coinType    币种类型：btc、ltc、bch、eth
      * @param networkType 节点环境：testnet、mainnet
      * @param derivationPath 路径：path
      */
-    constructor(deviceName: string, coinType: string, networkType: string, derivationPath: string) {
-        this.device_name = deviceName;
+    constructor(deviceType: string, coinType: string, networkType: string, derivationPath: string) {
+        this.device_type = deviceType;
         this.ledger = new LedgerControler(coinType, derivationPath, networkType);
         this.trezor = new TrezorControler(coinType, derivationPath, networkType);
     }
     public async signTransaction(entity: any): Promise<Result> {
         try {
             let signed: Result = {};
-            switch (this.device_name) {
+            switch (this.device_type) {
                 case HDType.LEDGER:
                     signed = await this.ledger.signTransaction(entity);
                     break;
@@ -46,7 +46,7 @@ export class HdCore {
     public async getWalletAddress(param: AddressParam): Promise<Result> {
         try {
             let resp: Result = {};
-            switch (this.device_name) {
+            switch (this.device_type) {
                 case HDType.LEDGER:
                     resp = await this.ledger.getCoinAddressList(param);
                     break;
