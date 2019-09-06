@@ -1,7 +1,3 @@
-
-/**
- *
- */
 import { Result, HDType } from './model/utils';
 import { LedgerControler } from './ledger/index';
 import { TrezorControler } from './trezor/index';
@@ -23,6 +19,11 @@ export class HdCore {
         this.ledger = new LedgerControler(coinType, derivationPath, networkType);
         this.trezor = new TrezorControler(coinType, derivationPath, networkType);
     }
+    /**
+     * 硬件签名暴露接口：支持硬件：leger,trezor，币种：eth,btc,ltc,bch
+     * bch只支持主网
+     * @param entity 后端返回 Json data 
+     */
     public async signTransaction(entity: any): Promise<Result> {
         try {
             let signed: Result = {};
@@ -43,6 +44,18 @@ export class HdCore {
         }
 
     }
+    /**
+     * 硬件地址导出暴露接口：支持硬件：leger,trezor，币种：eth,btc,ltc,bch
+     * bch只支持主网      
+     * @param param 
+     * isHd: boolean;true:硬件导入，false:xpub导入
+     * segwit: boolean;
+     * start: number;起始路径
+     * end: number;结束路径
+     * chainCode?: string;
+     * publicKey?: string;
+     * xPubStr?: string; 
+     */
     public async getWalletAddress(param: AddressParam): Promise<Result> {
         try {
             let resp: Result = {};

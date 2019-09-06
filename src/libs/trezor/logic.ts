@@ -3,7 +3,7 @@ import { convert } from 'ethereumjs-units';
 import { EthEntity, dealWithInputsResult, trezorBtcEntityResult } from "../model/eth";
 import * as BipPath from "bip32-path";
 import { CoinType, HDType } from '../model/utils';
-import { getCoinAddress } from '../common/convert';
+import { convertCoinAddress } from '../common/convert';
 import { SEND_ENUM, PAY_ENUM } from "../model/btc";
 const bitcoinjslib = require("bitcoinjs-lib");
 const bitcore = require("bitcore-lib");
@@ -28,9 +28,9 @@ class TrezorLogic {
 
     public async getBtcTrezorEntity(data: any): Promise<trezorBtcEntityResult> {
         if (this.coin_type === CoinType.LTC || this.coin_type === CoinType.BCH) {
-            data.input.address = getCoinAddress(data.input.address, this.coin_type, HDType.TREZOR);
+            data.input.address = convertCoinAddress(data.input.address, this.coin_type, HDType.TREZOR);
             data.outputs.forEach((item: any) => {
-                item.address = getCoinAddress(item.address, this.coin_type, HDType.TREZOR);
+                item.address = convertCoinAddress(item.address, this.coin_type, HDType.TREZOR);
             });
             if (data.input.paths.length > 1) {
                 data.input = this.dealWithInputs(data.input);

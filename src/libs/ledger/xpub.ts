@@ -1,7 +1,7 @@
 import { WalletHd, WalletPublicKey } from '../model/hd';
 import { crypto } from 'bitcore-lib';
 import * as BipPath from "bip32-path";
-import { Utils } from '../common/utils';
+import { getCompressPublicKey } from '../common/utils';
 import { LedgerTransport } from './transport';
 import { getNetworksFromLib, getHdPublicKeyObjFromLib } from '../common/networks';
 class Xpub {
@@ -34,8 +34,8 @@ class Xpub {
         let coinPublicKey: WalletPublicKey = await device.getWalletPublicKey(parentPath);
         let resp: WalletHd = {
             chainCode: accountPublicKey.chainCode,
-            publicKey: Utils.getCompressPublicKey(accountPublicKey.publicKey),
-            parentPublicKey: Utils.getCompressPublicKey(coinPublicKey.publicKey)
+            publicKey: getCompressPublicKey(accountPublicKey.publicKey),
+            parentPublicKey: getCompressPublicKey(coinPublicKey.publicKey)
         };
         return resp;
     }

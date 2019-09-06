@@ -1,4 +1,4 @@
-import { Utils } from '../common/utils';
+import { getCompressPublicKey } from '../common/utils';
 import { TrezorConnect } from './transport';
 import * as BipPath from "bip32-path";
 import { NetWorkType, CoinType } from '../model/utils';
@@ -19,7 +19,7 @@ class Xpub {
         })
         return {
             chainCode: resp.payload.chainCode,
-            publicKey: Utils.getCompressPublicKey(resp.payload.publicKey),
+            publicKey: getCompressPublicKey(resp.payload.publicKey),
             xpubStr: resp.payload.xpub
         }
     }

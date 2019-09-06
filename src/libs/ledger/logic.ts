@@ -7,7 +7,7 @@ import { EthEntity, EthData } from '../model/eth';
 import { toHex, numberToHex } from 'web3-utils';
 import { convert } from 'ethereumjs-units';
 import { CoinType } from '../model/utils';
-import { getCoinAddress } from '../common/convert';
+import { convertCoinAddress } from '../common/convert';
 const axios = require('axios');
 
 class LedgerLogic {
@@ -56,7 +56,7 @@ class LedgerLogic {
 
     private async getBtcSeriesLedgerInputs(data: BtcSeriesData): Promise<any> {
         //格式化地址
-        data.input.address = getCoinAddress(data.input.address, this.coin_type);
+        data.input.address = convertCoinAddress(data.input.address, this.coin_type);
         let inputs: any = await this.getBtcSeriesTxInputsByUtxo(data.utxos);
         //多签：需要赎回脚本
         if (data.input.paths.length > 1) {
@@ -71,23 +71,24 @@ class LedgerLogic {
         const transport: any = await this.transport.getTransport();
         let splitTxs: Array<any> = new Array<any>();
         let indexs: Array<number> = new Array<number>();
-        let txApiUrl: string = TX_SPLIT_API.BTC;
-        switch (this.coin_type) {
-            case CoinType.BCH:
-                txApiUrl = TX_SPLIT_API.BCH;
-                break;
-            case CoinType.LTC:
-                txApiUrl = TX_SPLIT_API.LTC;
-                break;
-            case CoinType.BTC:
-            default:
-                break;
-        }
+        let txApiUrl: string;
         for (let element of listUtxo) {
-            let res: any = await axios.get(`${txApiUrl}/${element.txid}/hex`);
+            switch (this.coin_type) {
+                case CoinType.BCH:
+                    txApiUrl = `${TX_SPLIT_API.BCH}/${element.txid}/hex`;
+                    break;
+                case CoinType.LTC:
+                    txApiUrl = `${TX_SPLIT_API.LTC}/${element.txid}`;
+                    break;
+                case CoinType.BTC:
+                default:
+                    txApiUrl = `${TX_SPLIT_API.BTC}/${element.txid}/hex`;
+                    break;
+            }
+            let res: any = await axios.get(txApiUrl);
             for (let i = 0; i < res.data.length; i++) {
-                let swegit = res.data[i].hex.substring(8, 8 + 2) == "00" ? true : false;
-                let splitTx = await transport.splitTransaction(res.data[i].hex, swegit, undefined);
+                let swegit: boolean = res.data[i].hex.substring(8, 8 + 2) == "00" ? true : false;
+                let splitTx: any = await transport.splitTransaction(res.data[i].hex, swegit, undefined);
                 splitTxs.push(splitTx);
                 indexs.push(listUtxo[i].index);
             }
@@ -99,7 +100,7 @@ class LedgerLogic {
         let tmp: Array<any> = new Array<any>();
         listOutput.forEach(element => {
             tmp.push({
-                address: getCoinAddress(element.address, this.coin_type),
+                address: convertCoinAddress(element.address, this.coin_type),
                 value: Unit.fromBTC(element.coinNum).toSatoshis()
             });
         });

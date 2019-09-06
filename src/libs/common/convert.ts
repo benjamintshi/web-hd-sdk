@@ -4,12 +4,12 @@ const bitcoinjs = require('bitcoinjs-lib');
 
 
 /**
- * 格式化地址
+ * 地址格式转换
  * @param address    地址
  * @param coinType   币种
  * @param deviceType 硬件类型
  */
-function getCoinAddress(address: string, coinType: string, deviceType?: string): string {
+function convertCoinAddress(address: string, coinType: string, deviceType?: string): string {
     switch (coinType) {
         case CoinType.BTC:
             return address;
@@ -65,5 +65,5 @@ function getLtcConvertAddress(address: string, deviceType?: string): string {
 }
 
 export {
-    getCoinAddress
+    convertCoinAddress
 }
