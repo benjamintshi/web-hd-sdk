@@ -9,6 +9,10 @@ class LedgerTransaction {
     private transport: any;
     private coin_type: string;
     private version: number = 1;
+    /**
+     * 交易签名函数类
+     * @param coinType 币种
+     */
     constructor(coinType: string) {
         this.coin_type = coinType;
     }
@@ -59,7 +63,6 @@ class LedgerTransaction {
         } else {
             signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
         }
-        debugger
         let res: Result = {
             success: true,
             message: "",

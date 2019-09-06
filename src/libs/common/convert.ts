@@ -21,7 +21,11 @@ function convertCoinAddress(address: string, coinType: string, deviceType?: stri
             return address;
     }
 }
-
+/**
+ * bch地址转换
+ * @param address 
+ * @param deviceType 
+ */
 function getBchConvertAddress(address: string, deviceType?: string): string {
     try {
         if (isP2PKHAddress(address) || isP2SHAddress(address)) {
@@ -33,6 +37,11 @@ function getBchConvertAddress(address: string, deviceType?: string): string {
         throw Error(`bch:${address} address is invalid.`);
     }
 }
+/**
+ * ltc地址转换
+ * @param address 
+ * @param deviceType 
+ */
 function getLtcConvertAddress(address: string, deviceType?: string): string {
     try {
         let decoded: string = bitcoinjs.address.fromBase58Check(address);

@@ -10,6 +10,12 @@ class LedgerExport {
     private coin_type: string;
     private network_type: string;
     private addressUtils: AddressUtils;
+    /**
+     * 地址推导函数类
+     * @param derivationPath 账户级path
+     * @param coinType 币种
+     * @param networkType 主网：mainnet，测试网：testnet
+     */
     constructor(derivationPath: string, coinType: string, networkType: string) {
         this.coin_type = coinType;
         this.derivation_path = derivationPath;
@@ -17,6 +23,10 @@ class LedgerExport {
         this.addressUtils = new AddressUtils(HDType.LEDGER, derivationPath, coinType);
     }
 
+    /**
+     * 导出eth地址
+     * @param param 
+     */
     public async exportEthAddress(param: AddressParam): Promise<any> {
         let transport: any;
         if (param.isHd) {

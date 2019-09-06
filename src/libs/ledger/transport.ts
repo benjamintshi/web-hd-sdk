@@ -9,15 +9,25 @@ class LedgerTransport {
     private OPEN_TIMEOUT: number = 10000;
     private LISTENER_TIMEOUT: number = 30000;
     private coin_type: string;
+    /**
+     * 硬件连接对象
+     * @param coinType 
+     */
     constructor(coinType: string) {
         this.coin_type = coinType;
     }
+    /**
+     * 是否支持webusb链接
+     */
     private async isWebUsbSupported(): Promise<boolean> {
         const isSupport = await TransportWebUSB.isSupported();
         return (
             isSupport && platform.os.family !== 'Windows' && platform.name !== 'Opera'
         );
     }
+    /**
+     * 获取Ledger硬件链接对象
+     */
     public async getTransport(): Promise<any> {
         const support: boolean = await this.isWebUsbSupported();
         let transport: any;

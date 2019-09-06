@@ -10,11 +10,21 @@ class LedgerControler {
     private transaction?: LedgerTransaction;
     private export?: LedgerExport;
     private logic?: LedgerLogic;
+    /**
+     * 控制器：交易签名、地址导出
+     * @param coinType 
+     * @param derivationPath 账户级path
+     * @param networkType 主网：mainnet，测试网：testnet
+     */
     constructor(coinType: string, derivationPath: string, networkType: string) {
         this.coin_type = coinType;
         this.derivation_path = derivationPath;
         this.network_type = networkType;
     }
+    /**
+     * 交易签名暴露接口函数根据币种类型对应签名
+     * @param data 
+     */
     public async signTransaction(data: any): Promise<any> {
         this.logic = new LedgerLogic(this.coin_type);
         const entity: any = await this.logic.getLedgerEntity(data);
@@ -28,6 +38,10 @@ class LedgerControler {
                 return await this.transaction.signBtcSeries(entity,data.utxos);
         }
     }
+    /**
+     * 地址推导暴露接口函数根据币种类型
+     * @param param 
+     */
     public async getCoinAddressList(param: AddressParam): Promise<any> {
         this.export = new LedgerExport(this.derivation_path, this.coin_type, this.network_type);
         switch (this.coin_type) {

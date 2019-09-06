@@ -11,26 +11,35 @@ import { convertCoinAddress } from '../common/convert';
 const axios = require('axios');
 
 class LedgerLogic {
-    private transport: LedgerTransport;
+    private transport?: LedgerTransport;
     private coin_type: string;
-
+    /**
+     * 交易签名逻辑处理类
+     * @param coinType 
+     */
     constructor(coinType: string) {
         this.coin_type = coinType;
-        this.transport = new LedgerTransport(coinType);
     }
 
+    /**
+     * 组装ledger签名实体对象
+     * @param data 
+     */
     public async getLedgerEntity(data: any): Promise<any> {
         switch (this.coin_type) {
             case CoinType.ETH:
                 return await this.getEthLedgerEntity(data);
             case CoinType.BTC:
-                return await this.getBtcLedgerEntity(data);
             default:
-                return await this.getBtcLedgerEntity(data);
+                return await this.getBtcSeriesLedgerEntity(data);
         }
     }
 
-    private async getBtcLedgerEntity(data: BtcSeriesData): Promise<BtcSeriesEntity> {
+    /**
+     * 组装ledger签名实体对象:BTC系列：btc、bch、ltc
+     * @param data 
+     */
+    private async getBtcSeriesLedgerEntity(data: BtcSeriesData): Promise<BtcSeriesEntity> {
         let entity: BtcSeriesEntity = {
             isMutiSign: data.input.paths.length > 1,
             inputs: await this.getBtcSeriesLedgerInputs(data),
@@ -41,6 +50,10 @@ class LedgerLogic {
         return entity;
     }
 
+    /**
+     * 组装ledger签名实体对象:ETH
+     * @param data 
+     */
     private async getEthLedgerEntity(data: EthData): Promise<EthEntity> {
         let entity: EthEntity = {
             nonce: numberToHex(data.nonce),
@@ -54,6 +67,11 @@ class LedgerLogic {
         return entity;
     }
 
+
+    /**
+     * btc系列签名 报文解析组装签名所需inputs、格式化地址支持bch、ltc，多签需要赎回脚本
+     * @param data 
+     */
     private async getBtcSeriesLedgerInputs(data: BtcSeriesData): Promise<any> {
         //格式化地址
         data.input.address = convertCoinAddress(data.input.address, this.coin_type);
@@ -67,7 +85,12 @@ class LedgerLogic {
         return inputs;
     }
 
+    /**
+     * btc系列签名 utxo hax 报文解析组装签名所需inputs
+     * @param listUtxo 
+     */
     private async getBtcSeriesTxInputsByUtxo(listUtxo: Array<Utxo>): Promise<any> {
+        this.transport = new LedgerTransport(this.coin_type);
         const transport: any = await this.transport.getTransport();
         let splitTxs: Array<any> = new Array<any>();
         let indexs: Array<number> = new Array<number>();
@@ -96,6 +119,10 @@ class LedgerLogic {
         return zip(splitTxs, indexs);
     }
 
+    /**
+     * btc系列签名锁定脚本
+     * @param listOutput 
+     */
     private async getBtcSeriesLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {
         let tmp: Array<any> = new Array<any>();
         listOutput.forEach(element => {

@@ -9,6 +9,12 @@ class Xpub {
     private coin_type: string;
     private coin_num: number;
     private network_type: string;
+    /**
+     * xpub推导函数类
+     * @param derivationPath 
+     * @param coinType 
+     * @param netWorkType 
+     */
     constructor(derivationPath: string, coinType: string, netWorkType: string) {
         this.derivation_path = derivationPath;
         this.coin_type = coinType;
@@ -16,6 +22,10 @@ class Xpub {
         this.coin_num = (BipPath.fromString(this.derivation_path).toPathArray()[2] & ~0x80000000);
     }
 
+    /**
+     * 获取硬件xpub
+     * @param segwit 是否支持隔离见证-暂未使用到
+     */
     public async getXpub(segwit: boolean): Promise<any> {
         let hd: WalletHd = await this.getWalletPublicKey();
         let xpubStr: string = await this.buildXpub(hd);
@@ -26,6 +36,9 @@ class Xpub {
         };
     }
 
+    /**
+     * 链接硬件获取账户级：publickey,chaincode级币种级公钥
+     */
     private async getWalletPublicKey(): Promise<WalletHd> {
         let device = await new LedgerTransport(this.coin_type).getTransport();
         //获取账户级public key
@@ -40,6 +53,10 @@ class Xpub {
         return resp;
     }
 
+    /**
+     * 根据账户级：publickey,chaincode级币种级公钥推导账户级xpub
+     * @param hd 
+     */
     private async buildXpub(hd: WalletHd): Promise<string> {
         let network: any = getNetworksFromLib(this.coin_type, this.network_type);
         let parentPublicKey: string = hd.parentPublicKey;

@@ -8,11 +8,23 @@ class AddressUtils {
     private device_type: string;
     private derivation_path: string;
     private coin_type: string;
+    /**
+     * 地址推导工具类：业务代码逻辑复用
+     * @param deviceType 
+     * @param derivationPath 
+     * @param coinType 
+     */
     constructor(deviceType: string, derivationPath: string, coinType: string) {
         this.device_type = deviceType;
         this.derivation_path = derivationPath;
         this.coin_type = coinType;
     }
+    /**
+     * 获取eth 地址推导对象
+     * @param param 
+     * @param xPub 
+     * @param transport 
+     */
     public async getEthHardwarHdKey(param: AddressParam, xPub?: any, transport?: any): Promise<any> {
         const hdKey: any = new HDKey();
         if (param.isHd) {
@@ -36,6 +48,12 @@ class AddressUtils {
         return hdKey;
 
     }
+    
+    /**
+     * 推导地址
+     * @param param 
+     * @param hdKey 
+     */
     public getEthAddressList(param: AddressParam, hdKey: any): Array<any> {
         const addressList: Array<any> = new Array<any>();
         for (let i: number = param.start; i < param.end; i++) {
@@ -53,6 +71,11 @@ class AddressUtils {
         return addressList;
     }
 
+    /**
+     * 获取btc系列 地址推导对象
+     * @param param 
+     * @param xpubResp 
+     */
     public async getBtcSeriesHardwarHdKey(param: AddressParam, xpubResp?: any): Promise<any> {
         let xpubStr: string;
         if (param.isHd) {
@@ -64,6 +87,11 @@ class AddressUtils {
         return hdKey;
     }
 
+    /**
+     * 推导地址
+     * @param param 
+     * @param hdKey 
+     */
     public async  getBtcSeriesAddressList(param: AddressParam, hdKey: any): Promise<Array<any>> {
         const addressList: Array<any> = new Array<any>();
         for (let i: number = param.start; i < param.end; i++) {

@@ -1,6 +1,6 @@
 {
   "name": "web-hd-sdk",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "ledger and trezor hd sign and export coin address.",
   "main": "dist/index.js",
   "dependencies": {
