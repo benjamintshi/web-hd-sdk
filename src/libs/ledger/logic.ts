@@ -1,6 +1,6 @@
 import buildOutputScript from 'build-output-script';
 import { Unit } from 'bitcore-lib';
-import { BtcSeriesEntity, BtcSeriesData, Utxo, OutPut } from '../model/btc';
+import { BtcSeriesEntity, BtcSeriesData, Utxo, OutPut, TX_SPLIT_API } from '../model/btc';
 import { zip } from 'lodash';
 import { LedgerTransport } from './transport'
 import { EthEntity, EthData } from '../model/eth';
@@ -33,8 +33,8 @@ class LedgerLogic {
     private async getBtcLedgerEntity(data: BtcSeriesData): Promise<BtcSeriesEntity> {
         let entity: BtcSeriesEntity = {
             isMutiSign: data.input.paths.length > 1,
-            inputs: await this.getLedgerInputs(data),
-            outputScript: await this.getLedgerOutputScript(data.outputs),
+            inputs: await this.getBtcSeriesLedgerInputs(data),
+            outputScript: await this.getBtcSeriesLedgerOutputScript(data.outputs),
             segwit: false,
             paths: Array(data.utxos.length).fill(data.input.paths[data.input.signIndex].path)
         }
@@ -54,10 +54,10 @@ class LedgerLogic {
         return entity;
     }
 
-    private async getLedgerInputs(data: BtcSeriesData): Promise<any> {
+    private async getBtcSeriesLedgerInputs(data: BtcSeriesData): Promise<any> {
         //格式化地址
         data.input.address = getCoinAddress(data.input.address, this.coin_type);
-        let inputs: any = await this.getTxInputsByUtxo(data.utxos);
+        let inputs: any = await this.getBtcSeriesTxInputsByUtxo(data.utxos);
         //多签：需要赎回脚本
         if (data.input.paths.length > 1) {
             inputs.forEach(element => {
@@ -67,32 +67,35 @@ class LedgerLogic {
         return inputs;
     }
 
-    private async getTxInputsByUtxo(listUtxo: Array<Utxo>): Promise<any> {
+    private async getBtcSeriesTxInputsByUtxo(listUtxo: Array<Utxo>): Promise<any> {
         const transport: any = await this.transport.getTransport();
-        let ids: Array<string> = new Array<string>();
         let splitTxs: Array<any> = new Array<any>();
         let indexs: Array<number> = new Array<number>();
-        listUtxo.forEach((element) => {
-            ids.push(element.txid);
-        });
-        //todo
-        //url增加bitcore查询交易报文.
-        let url = "https://api.ledgerwallet.com/blockchain/v2/btc_testnet/transactions/" + ids.join(',') + "/hex";
-        //ltc:https://chain.so/api/v2/get_tx/LTC/" + utxos[i].txid)
-        //bch:"https://api.ledgerwallet.com/blockchain/v2/abc/transactions/" + utxos[i].txid + "/hex";
-        const res = await axios.get(url);
-        const data = res.data;
-        for (let i = 0; i < data.length; i++) {
-            let swegit = data[i].hex.substring(8, 8 + 2) == "00" ? true : false;
-            let splitTx = await transport.splitTransaction(data[i].hex, swegit, undefined);
-            splitTxs.push(splitTx);
-            indexs.push(listUtxo[i].index);
+        let txApiUrl: string = TX_SPLIT_API.BTC;
+        switch (this.coin_type) {
+            case CoinType.BCH:
+                txApiUrl = TX_SPLIT_API.BCH;
+                break;
+            case CoinType.LTC:
+                txApiUrl = TX_SPLIT_API.LTC;
+                break;
+            case CoinType.BTC:
+            default:
+                break;
         }
-        debugger
+        for (let element of listUtxo) {
+            let res: any = await axios.get(`${txApiUrl}/${element.txid}/hex`);
+            for (let i = 0; i < res.data.length; i++) {
+                let swegit = res.data[i].hex.substring(8, 8 + 2) == "00" ? true : false;
+                let splitTx = await transport.splitTransaction(res.data[i].hex, swegit, undefined);
+                splitTxs.push(splitTx);
+                indexs.push(listUtxo[i].index);
+            }
+        }
         return zip(splitTxs, indexs);
     }
 
-    private async getLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {
+    private async getBtcSeriesLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {
         let tmp: Array<any> = new Array<any>();
         listOutput.forEach(element => {
             tmp.push({

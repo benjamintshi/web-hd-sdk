@@ -72,6 +72,16 @@ enum PAY_ENUM {
     p2sh = "PAYTOP2SHWITNESS",
     op_return_type = "PAYTOOPRETURN"
 }
+
+/**
+ * Ledger splitTransaction Api 接口
+ */
+enum TX_SPLIT_API {
+    BTC = "https://api.ledgerwallet.com/blockchain/v2/btc_testnet/transactions/",
+    BCH = "https://api.ledgerwallet.com/blockchain/v2/abc/transactions/",
+    LTC = "https://chain.so/api/v2/get_tx/LTC/"
+}
+
 export {
     BtcSeriesEntity,
     Utxos,
@@ -80,5 +90,6 @@ export {
     OutPut,
     BtcSeriesData,
     SEND_ENUM,
-    PAY_ENUM
+    PAY_ENUM,
+    TX_SPLIT_API
 }
