@@ -8,6 +8,7 @@ import { toHex, numberToHex } from 'web3-utils';
 import { convert } from 'ethereumjs-units';
 import { CoinType } from '../model/utils';
 import { convertCoinAddress } from '../common/convert';
+import { writeInfoLog, writeErrorLog } from '../common/logger';
 const axios = require('axios');
 
 class LedgerLogic {
@@ -19,6 +20,7 @@ class LedgerLogic {
      */
     constructor(coinType: string) {
         this.coin_type = coinType;
+        writeInfoLog(`初始化交易签名逻辑处理类.`);
     }
 
     /**
@@ -26,6 +28,7 @@ class LedgerLogic {
      * @param data 
      */
     public async getLedgerEntity(data: any): Promise<any> {
+        writeInfoLog(`组装ledger签名实体对象.`);
         switch (this.coin_type) {
             case CoinType.ETH:
                 return await this.getEthLedgerEntity(data);
@@ -36,10 +39,11 @@ class LedgerLogic {
     }
 
     /**
-     * 组装ledger签名实体对象:BTC系列：btc、bch、ltc
+     * 构造ledger签名实体对象:BTC系列：btc、bch、ltc
      * @param data 
      */
     private async getBtcSeriesLedgerEntity(data: BtcSeriesData): Promise<BtcSeriesEntity> {
+        writeInfoLog(`构造ledger btc系列 签名实体对象`);
         let entity: BtcSeriesEntity = {
             isMutiSign: data.input.paths.length > 1,
             inputs: await this.getBtcSeriesLedgerInputs(data),
@@ -51,10 +55,11 @@ class LedgerLogic {
     }
 
     /**
-     * 组装ledger签名实体对象:ETH
+     * 构造ledger签名实体对象:ETH
      * @param data 
      */
     private async getEthLedgerEntity(data: EthData): Promise<EthEntity> {
+        writeInfoLog(`构造ledger eth 签名实体对象`);
         let entity: EthEntity = {
             nonce: numberToHex(data.nonce),
             gasPrice: numberToHex(data.gasPrice),
@@ -90,33 +95,39 @@ class LedgerLogic {
      * @param listUtxo 
      */
     private async getBtcSeriesTxInputsByUtxo(listUtxo: Array<Utxo>): Promise<any> {
-        this.transport = new LedgerTransport(this.coin_type);
-        const transport: any = await this.transport.getTransport();
-        let splitTxs: Array<any> = new Array<any>();
-        let indexs: Array<number> = new Array<number>();
-        let txApiUrl: string;
-        for (let element of listUtxo) {
-            switch (this.coin_type) {
-                case CoinType.BCH:
-                    txApiUrl = `${TX_SPLIT_API.BCH}/${element.txid}/hex`;
-                    break;
-                case CoinType.LTC:
-                    txApiUrl = `${TX_SPLIT_API.LTC}/${element.txid}`;
-                    break;
-                case CoinType.BTC:
-                default:
-                    txApiUrl = `${TX_SPLIT_API.BTC}/${element.txid}/hex`;
-                    break;
+        try {
+            writeInfoLog(`ledger btc系列 utxo txid报文解析.`);
+            this.transport = new LedgerTransport(this.coin_type);
+            const transport: any = await this.transport.getTransport();
+            let splitTxs: Array<any> = new Array<any>();
+            let indexs: Array<number> = new Array<number>();
+            let txApiUrl: string;
+            for (let element of listUtxo) {
+                switch (this.coin_type) {
+                    case CoinType.BCH:
+                        txApiUrl = `${TX_SPLIT_API.BCH}/${element.txid}/hex`;
+                        break;
+                    case CoinType.LTC:
+                        txApiUrl = `${TX_SPLIT_API.LTC}/${element.txid}`;
+                        break;
+                    case CoinType.BTC:
+                    default:
+                        txApiUrl = `${TX_SPLIT_API.BTC}/${element.txid}/hex`;
+                        break;
+                }
+                let res: any = await axios.get(txApiUrl);
+                for (let i = 0; i < res.data.length; i++) {
+                    let swegit: boolean = res.data[i].hex.substring(8, 8 + 2) == "00" ? true : false;
+                    let splitTx: any = await transport.splitTransaction(res.data[i].hex, swegit, undefined);
+                    splitTxs.push(splitTx);
+                    indexs.push(listUtxo[i].index);
+                }
             }
-            let res: any = await axios.get(txApiUrl);
-            for (let i = 0; i < res.data.length; i++) {
-                let swegit: boolean = res.data[i].hex.substring(8, 8 + 2) == "00" ? true : false;
-                let splitTx: any = await transport.splitTransaction(res.data[i].hex, swegit, undefined);
-                splitTxs.push(splitTx);
-                indexs.push(listUtxo[i].index);
-            }
+            return zip(splitTxs, indexs);
+        } catch (error) {
+            throw new Error(`获取utxo txid报文解析失败，错误信息：${error.message}`)
         }
-        return zip(splitTxs, indexs);
+
     }
 
     /**
@@ -124,14 +135,20 @@ class LedgerLogic {
      * @param listOutput 
      */
     private async getBtcSeriesLedgerOutputScript(listOutput: Array<OutPut>): Promise<string> {
-        let tmp: Array<any> = new Array<any>();
-        listOutput.forEach(element => {
-            tmp.push({
-                address: convertCoinAddress(element.address, this.coin_type),
-                value: Unit.fromBTC(element.coinNum).toSatoshis()
+        try {
+            let tmp: Array<any> = new Array<any>();
+            listOutput.forEach(element => {
+                tmp.push({
+                    address: convertCoinAddress(element.address, this.coin_type),
+                    value: Unit.fromBTC(element.coinNum).toSatoshis()
+                });
             });
-        });
-        return buildOutputScript(tmp);
+            writeInfoLog(`ledger btc系列 签名锁定脚本.`);
+            return buildOutputScript(tmp);
+        } catch (error) {
+            throw new Error(`构造ledger btc系列 签名锁定脚本失败，错误信息：${error.message}`);
+        }
+
     }
 }
 

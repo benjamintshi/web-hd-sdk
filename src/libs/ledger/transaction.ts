@@ -4,6 +4,7 @@ import { BtcSeriesEntity, Utxos } from '../model/btc';
 import { EthEntity } from '../model/eth';
 import { LedgerTransport } from "./transport";
 import { getSignature, getMutiSignSignature } from "../common/signature";
+import { writeInfoLog } from "../common/logger";
 const Tx = require('ethereumjs-tx');
 class LedgerTransaction {
     private transport: any;
@@ -15,6 +16,7 @@ class LedgerTransaction {
      */
     constructor(coinType: string) {
         this.coin_type = coinType;
+        writeInfoLog(`交易签名函数类.`);
     }
 
     /**
@@ -23,20 +25,25 @@ class LedgerTransaction {
      * @param entity 
      */
     public async signEth(path: string, entity: EthEntity): Promise<Result> {
-        let res: Result = {};
-        let signed: any;
-        const tx = new Tx(entity);
-        const rawTxHex = rlp.encode(tx.raw).toString('hex');
-        this.transport = await new LedgerTransport(this.coin_type).getTransport();
-        signed = await this.transport.signTransaction(path, rawTxHex);
-        res = {
-            success: true,
-            message: "",
-            v: signed.v,
-            r: signed.r,
-            s: signed.s,
-        };
-        return res;
+        try {
+            writeInfoLog(`Eth交易签名.`);
+            let res: Result = {};
+            let signed: any;
+            const tx = new Tx(entity);
+            const rawTxHex = rlp.encode(tx.raw).toString('hex');
+            this.transport = await new LedgerTransport(this.coin_type).getTransport();
+            signed = await this.transport.signTransaction(path, rawTxHex);
+            res = {
+                success: true,
+                message: "",
+                v: signed.v,
+                r: signed.r,
+                s: signed.s,
+            };
+            return res;
+        } catch (error) {
+            throw new Error(`Eth硬件签名失败，错误信息：${error.message}`);
+        }
     }
 
     /**
@@ -46,30 +53,36 @@ class LedgerTransaction {
      * @returns {Promise<Result>}
      */
     public async signBtcSeries(entity: BtcSeriesEntity, utxos: Utxos): Promise<Result> {
-        let signed: any;
-        this.transport = await new LedgerTransport(this.coin_type).getTransport();
-        if (!entity.isMutiSign) {
-            signed = await this.transport.createPaymentTransactionNew(
-                entity.inputs,
-                entity.paths,
-                entity.sigHashType ? entity.sigHashType : undefined,//bch
-                entity.outputScript,
-                undefined,
-                undefined,
-                entity.segwit,
-                undefined ? Math.floor(Date.now() / 1000) - 15 * 60 : undefined,
-                entity.additionals ? entity.additionals : undefined //bch
-            )
-        } else {
-            signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
+        try {
+            writeInfoLog(`Btc系列交易签名.`);
+            let signed: any;
+            this.transport = await new LedgerTransport(this.coin_type).getTransport();
+            if (!entity.isMutiSign) {
+                signed = await this.transport.createPaymentTransactionNew(
+                    entity.inputs,
+                    entity.paths,
+                    entity.sigHashType ? entity.sigHashType : undefined,//bch
+                    entity.outputScript,
+                    undefined,
+                    undefined,
+                    entity.segwit,
+                    undefined ? Math.floor(Date.now() / 1000) - 15 * 60 : undefined,
+                    entity.additionals ? entity.additionals : undefined //bch
+                )
+            } else {
+                signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
+            }
+            let res: Result = {
+                success: true,
+                message: "",
+                signatures: entity.isMutiSign ? getMutiSignSignature(signed, utxos) : getSignature(signed, false),
+                version: this.version
+            };
+            return res;
+        } catch (error) {
+            throw new Error(`${this.coin_type}硬件签名失败，错误信息：${error.message}`);
         }
-        let res: Result = {
-            success: true,
-            message: "",
-            signatures: entity.isMutiSign ? getMutiSignSignature(signed, utxos) : getSignature(signed, false),
-            version: this.version
-        };
-        return res;
+
     }
 }
 

@@ -32,7 +32,6 @@ class TrezorControler {
         }
     }
     public async getCoinAddressList(param: AddressParam): Promise<any> {
-        debugger
         this.export = new TrezorExport(this.derivation_path, this.coin_type, this.network_type);
         switch (this.coin_type) {
             case CoinType.ETH:

@@ -1,5 +1,6 @@
 import { isP2PKHAddress, toLegacyAddress, isP2SHAddress, toCashAddress } from 'bchaddrjs';
 import { CoinType, HDType } from '../model/utils';
+import { writeInfoLog } from './logger';
 const bitcoinjs = require('bitcoinjs-lib');
 
 
@@ -28,6 +29,7 @@ function convertCoinAddress(address: string, coinType: string, deviceType?: stri
  */
 function getBchConvertAddress(address: string, deviceType?: string): string {
     try {
+        writeInfoLog(`格式化bch签名地址，原地址：${address}`);
         if (isP2PKHAddress(address) || isP2SHAddress(address)) {
             return deviceType === HDType.LEDGER ? toLegacyAddress(address) : toCashAddress(address);
         } else {
@@ -44,6 +46,7 @@ function getBchConvertAddress(address: string, deviceType?: string): string {
  */
 function getLtcConvertAddress(address: string, deviceType?: string): string {
     try {
+        writeInfoLog(`格式化ltc签名地址，原地址：${address}`);
         let decoded: string = bitcoinjs.address.fromBase58Check(address);
         let version: number = decoded['version'];
         if (deviceType === HDType.TREZOR) {
@@ -68,6 +71,7 @@ function getLtcConvertAddress(address: string, deviceType?: string): string {
                     return address;
             }
         }
+
     } catch (error) {
         throw Error(`ltc:${address} address is invalid.`);
     }
