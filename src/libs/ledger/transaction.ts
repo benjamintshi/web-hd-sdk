@@ -16,7 +16,7 @@ class LedgerTransaction {
      */
     constructor(coinType: string) {
         this.coin_type = coinType;
-        writeInfoLog(`交易签名函数类.`);
+        writeInfoLog(`初始化交易签名函数类.`);
     }
 
     /**
@@ -32,7 +32,9 @@ class LedgerTransaction {
             const tx = new Tx(entity);
             const rawTxHex = rlp.encode(tx.raw).toString('hex');
             this.transport = await new LedgerTransport(this.coin_type).getTransport();
+            writeInfoLog(`多签Btc系列硬件执行签名，等待硬件确认操作.`);
             signed = await this.transport.signTransaction(path, rawTxHex);
+            writeInfoLog(`多签Btc系列硬件签名完成.`);
             res = {
                 success: true,
                 message: "",
@@ -58,6 +60,7 @@ class LedgerTransaction {
             let signed: any;
             this.transport = await new LedgerTransport(this.coin_type).getTransport();
             if (!entity.isMutiSign) {
+                writeInfoLog(`多签Btc系列硬件执行签名，等待硬件确认操作.`);
                 signed = await this.transport.createPaymentTransactionNew(
                     entity.inputs,
                     entity.paths,
@@ -68,7 +71,8 @@ class LedgerTransaction {
                     entity.segwit,
                     undefined ? Math.floor(Date.now() / 1000) - 15 * 60 : undefined,
                     entity.additionals ? entity.additionals : undefined //bch
-                )
+                );
+                writeInfoLog(`多签Btc系列硬件签名完成.`);
             } else {
                 signed = await this.transport.signP2SHTransaction(entity.inputs, entity.paths, entity.outputScript);
             }

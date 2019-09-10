@@ -2,12 +2,14 @@ import { SignatureResult, Result } from "../model/utils";
 import { getSignature, getMutiSignSignature } from "../common/signature";
 import { TrezorConnect } from './transport';
 import { Utxos } from "../model/btc";
+import { writeInfoLog } from "../common/logger";
 
 class TrezorTransaction {
     private coin_type: string;
     private version: number = 1;
     constructor(coinType: string) {
         this.coin_type = coinType;
+        writeInfoLog(`初始化交易签名函数类.`);
     }
 
     /**

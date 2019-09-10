@@ -2,6 +2,7 @@ import { AddressParam } from "../model/hd";
 import { Xpub } from './xpub';
 import { AddressUtils } from '../common/address';
 import { HDType } from "../model/utils";
+import { writeInfoLog } from "../common/logger";
 class TrezorExport {
     private derivation_path: string;
     private coin_type: string;
@@ -14,6 +15,7 @@ class TrezorExport {
         this.network_type = networkType;
         this.xPub = this.xPub = new Xpub(this.derivation_path, this.coin_type, this.network_type);
         this.addressUtils = new AddressUtils(HDType.TREZOR, derivationPath, coinType);
+        writeInfoLog(`初始化地址推导函数类.`);
     }
 
     public async exportEthAddress(param: AddressParam): Promise<any> {

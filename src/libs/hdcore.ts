@@ -2,7 +2,7 @@ import { Result, HDType } from './model/utils';
 import { LedgerControler } from './ledger/index';
 import { TrezorControler } from './trezor/index';
 import { AddressParam } from './model/hd';
-import { writeInfoLog,writeDebugLog,writeErrorLog } from './common/logger';
+import { writeInfoLog,writeErrorLog } from './common/logger';
 
 export class HdCore {
     private device_type: string;
@@ -39,7 +39,7 @@ export class HdCore {
             }
             return signed;
         } catch (error) {
-            writeErrorLog(`硬件签名失败，错误消息：${error.message}`);
+            writeErrorLog(error.message);
             return {
                 success: false,
                 message: error.message
@@ -72,6 +72,7 @@ export class HdCore {
             }
             return resp;
         } catch (error) {
+            writeErrorLog(error.message);
             return {
                 success: false,
                 message: error.message

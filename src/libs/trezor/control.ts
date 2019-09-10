@@ -3,6 +3,7 @@ import { TrezorTransaction } from "./transaction"
 import { CoinType } from "../model/utils"
 import { TrezorExport } from './export';
 import { AddressParam } from '../model/hd';
+import { writeInfoLog } from "../common/logger";
 class TrezorControler {
     private transaction: TrezorTransaction;
     private coin_type: string;
@@ -15,6 +16,7 @@ class TrezorControler {
         this.coin_type = coinType;
         this.derivation_path = derivationPath;
         this.network_type = networkType;
+        writeInfoLog(`初始化ledger控制器：交易签名、地址导出`);
     }
 
     public async signTransaction(data: any): Promise<any> {

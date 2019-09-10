@@ -3,7 +3,7 @@ import { LedgerTransaction } from './transaction';
 import { LedgerLogic } from './logic';
 import { LedgerExport } from './export';
 import { AddressParam } from '../model/hd';
-import { writeInfoLog,writeErrorLog } from '../common/logger';
+import { writeInfoLog } from '../common/logger';
 class LedgerControler {
     private coin_type: string;
     private derivation_path: string;

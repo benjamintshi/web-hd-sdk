@@ -5,6 +5,7 @@ import * as BipPath from "bip32-path";
 import { CoinType, HDType } from '../model/utils';
 import { convertCoinAddress } from '../common/convert';
 import { SEND_ENUM, PAY_ENUM } from "../model/btc";
+import { writeInfoLog } from '../common/logger';
 const bitcoinjslib = require("bitcoinjs-lib");
 const bitcore = require("bitcore-lib");
 const util = require("util");
@@ -13,6 +14,7 @@ class TrezorLogic {
     private coin_type: string;
     constructor(coinType: string) {
         this.coin_type = coinType;
+        writeInfoLog(`初始化交易签名逻辑处理类.`);
     }
 
     public async getTrezorEntity(data: any): Promise<any> {

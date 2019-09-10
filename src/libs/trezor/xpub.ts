@@ -2,6 +2,7 @@ import { getCompressPublicKey } from '../common/utils';
 import { TrezorConnect } from './transport';
 import * as BipPath from "bip32-path";
 import { NetWorkType, CoinType } from '../model/utils';
+import { writeInfoLog } from '../common/logger';
 class Xpub {
     private derivation_path: string;// = "44'/0'/0'";
     private coin_type: string;
@@ -10,6 +11,7 @@ class Xpub {
         this.derivation_path = derivationPath;
         this.coin_type = coinType;
         this.network_type = networkType;
+        writeInfoLog(`初始化xpub推导函数类.`);
     }
 
     public async getXpub(): Promise<any> {

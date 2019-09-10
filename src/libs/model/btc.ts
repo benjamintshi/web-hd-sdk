@@ -77,9 +77,9 @@ enum PAY_ENUM {
  * Ledger splitTransaction Api 接口
  */
 enum TX_SPLIT_API {
-    BTC = "https://api.ledgerwallet.com/blockchain/v2/btc_testnet/transactions/",
-    BCH = "https://api.ledgerwallet.com/blockchain/v2/abc/transactions/",
-    LTC = "https://chain.so/api/v2/get_tx/LTC/"
+    BTC = "https://api.ledgerwallet.com/blockchain/v2/btc_testnet/transactions",
+    BCH = "https://api.ledgerwallet.com/blockchain/v2/abc/transactions",
+    LTC = "https://chain.so/api/v2/get_tx/LTC"
 }
 
 export {
