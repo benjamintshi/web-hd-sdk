@@ -8,7 +8,7 @@ import { toHex, numberToHex } from 'web3-utils';
 import { convert } from 'ethereumjs-units';
 import { CoinType } from '../model/utils';
 import { convertCoinAddress } from '../common/convert';
-import { writeInfoLog, writeErrorLog } from '../common/logger';
+import { writeInfoLog } from '../common/logger';
 const axios = require('axios');
 
 class LedgerLogic {
@@ -28,7 +28,7 @@ class LedgerLogic {
      * @param data 
      */
     public async getLedgerEntity(data: any): Promise<any> {
-        writeInfoLog(`组装ledger签名实体对象.`);
+        writeInfoLog(`构造ledger签名实体对象.`);
         switch (this.coin_type) {
             case CoinType.ETH:
                 return await this.getEthLedgerEntity(data);
@@ -59,17 +59,21 @@ class LedgerLogic {
      * @param data 
      */
     private async getEthLedgerEntity(data: EthData): Promise<EthEntity> {
-        writeInfoLog(`构造ledger eth 签名实体对象`);
-        let entity: EthEntity = {
-            nonce: numberToHex(data.nonce),
-            gasPrice: numberToHex(data.gasPrice),
-            gasLimit: numberToHex(data.gasLimit),
-            to: toHex(data.toAddress),
-            value: numberToHex(convert(data.txnCoinNum, 'eth', 'wei')),
-            data: data.data ? data.data : '',
-            chainId: numberToHex(data.chainId)
+        try {
+            writeInfoLog(`构造ledger eth 签名实体对象`);
+            let entity: EthEntity = {
+                nonce: numberToHex(data.nonce),
+                gasPrice: numberToHex(data.gasPrice),
+                gasLimit: numberToHex(data.gasLimit),
+                to: toHex(data.toAddress),
+                value: numberToHex(convert(data.txnCoinNum, 'eth', 'wei')),
+                data: data.data ? data.data : '',
+                chainId: numberToHex(data.chainId)
+            }
+            return entity;
+        } catch (error) {
+            throw new Error(`构造ledger eth 签名实体对象失败，错误信息：${error.message}`);
         }
-        return entity;
     }
 
 

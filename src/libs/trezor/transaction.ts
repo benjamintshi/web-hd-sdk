@@ -17,21 +17,26 @@ class TrezorTransaction {
      * @param entity 
      */
     public async EthSign(entity: any): Promise<Result> {
-        let result: Result = {
-            success: false
-        };
-        let resp: any = await TrezorConnect.ethereumSignTransaction(entity);
-        if (resp.success) {
-            result = {
-                success: true,
-                v: resp.payload.v,
-                r: resp.payload.r,
-                s: resp.payload.s
+        try {
+            writeInfoLog(`Eth交易签名.`);
+            let result: Result = {
+                success: false
             };
-        } else {
-            result.message = resp.payload.error;
+            let resp: any = await TrezorConnect.ethereumSignTransaction(entity);
+            if (resp.success) {
+                result = {
+                    success: true,
+                    v: resp.payload.v,
+                    r: resp.payload.r,
+                    s: resp.payload.s
+                };
+            } else {
+                result.message = resp.payload.error;
+            }
+            return result;
+        } catch (error) {
+            throw new Error(`Eth硬件签名失败，错误信息：${error.message}`);
         }
-        return result;
     }
 
     /**
@@ -39,22 +44,27 @@ class TrezorTransaction {
      * @param data 
      */
     public async BtcSeriesSign(entity: any, utxos: Utxos): Promise<SignatureResult> {
-        let result: SignatureResult = {
-            success: false
-        };
-        const resp: any = await TrezorConnect.signTransaction({
-            inputs: entity.inputs,
-            outputs: entity.outputs,
-            coin: this.coin_type
-        });
-        if (resp.success) {
-            result.signeds = entity.multisig ? getMutiSignSignature(resp.payload.signatures, utxos) : getSignature(resp.payload.serializedTx, true);
-            result.version = this.version;//getVersion(resp.payload.serializedTx);
-            result.success = true;
-        } else {
-            result.message = resp.payload.error;
+        try {
+            writeInfoLog(`Btc系列交易签名.`);
+            let result: SignatureResult = {
+                success: false
+            };
+            const resp: any = await TrezorConnect.signTransaction({
+                inputs: entity.inputs,
+                outputs: entity.outputs,
+                coin: this.coin_type
+            });
+            if (resp.success) {
+                result.signeds = entity.multisig ? getMutiSignSignature(resp.payload.signatures, utxos) : getSignature(resp.payload.serializedTx, true);
+                result.version = this.version;//getVersion(resp.payload.serializedTx);
+                result.success = true;
+            } else {
+                result.message = resp.payload.error;
+            }
+            return result;
+        } catch (error) {
+            throw new Error(`${this.coin_type}硬件签名失败，错误信息：${error.message}`);
         }
-        return result;
     }
 }
 

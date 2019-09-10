@@ -19,6 +19,7 @@ class TrezorExport {
     }
 
     public async exportEthAddress(param: AddressParam): Promise<any> {
+        writeInfoLog(`推导eth地址.`);
         let hdKey: any = await this.addressUtils.getEthHardwarHdKey(param, this.xPub, undefined);
         const addressList: Array<any> = this.addressUtils.getEthAddressList(param, hdKey);
         return {
@@ -34,6 +35,7 @@ class TrezorExport {
      * @param param 
      */
     public async exportBtcSeriesAddress(param: AddressParam): Promise<any> {
+        writeInfoLog(`推导${this.coin_type}地址.`);
         let xpubResp: any;
         if (param.isHd) {
             xpubResp = await this.xPub.getXpub();

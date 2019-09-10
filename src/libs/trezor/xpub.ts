@@ -15,14 +15,19 @@ class Xpub {
     }
 
     public async getXpub(): Promise<any> {
-        const resp: any = await TrezorConnect.getPublicKey({
-            path: BipPath.fromString(this.derivation_path).toString(),
-            coin: (this.network_type === NetWorkType.testnet && (this.coin_type === CoinType.BTC || this.coin_type === CoinType.LTC)) ? 'testnet' : this.coin_type
-        })
-        return {
-            chainCode: resp.payload.chainCode,
-            publicKey: getCompressPublicKey(resp.payload.publicKey),
-            xpubStr: resp.payload.xpub
+        try {
+            writeInfoLog(`获取硬件xpub.`);
+            const resp: any = await TrezorConnect.getPublicKey({
+                path: BipPath.fromString(this.derivation_path).toString(),
+                coin: (this.network_type === NetWorkType.testnet && (this.coin_type === CoinType.BTC || this.coin_type === CoinType.LTC)) ? 'testnet' : this.coin_type
+            })
+            return {
+                chainCode: resp.payload.chainCode,
+                publicKey: getCompressPublicKey(resp.payload.publicKey),
+                xpubStr: resp.payload.xpub
+            }
+        } catch (error) {
+            throw new Error(`获取硬件xpub失败，错误信息：${error.message}`);
         }
     }
 }

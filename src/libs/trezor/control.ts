@@ -20,6 +20,7 @@ class TrezorControler {
     }
 
     public async signTransaction(data: any): Promise<any> {
+        writeInfoLog(`trezor交易签名统一入口.`);
         this.logic = new TrezorLogic(this.coin_type);
         const entity: any = await this.logic.getTrezorEntity(data);
         switch (this.coin_type) {
@@ -34,6 +35,7 @@ class TrezorControler {
         }
     }
     public async getCoinAddressList(param: AddressParam): Promise<any> {
+        writeInfoLog(`trezor地址导出统一入口.`);
         this.export = new TrezorExport(this.derivation_path, this.coin_type, this.network_type);
         switch (this.coin_type) {
             case CoinType.ETH:
